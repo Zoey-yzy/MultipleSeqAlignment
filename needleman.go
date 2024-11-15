@@ -162,7 +162,7 @@ func TraceSequences(seq1, seq2 string, traceBackMatrix [][]string) (string, stri
     align1, align2 := make([]byte, 0), make([]byte, 0) //make empty strings (slices of bytes) to store aligned sequences
     ind1, ind2 := len(seq1), len(seq2) //start tracing back at the end of each sequence
     //elements of seq1 are the row labels, elements of seq2 are the column labels
-    for ind1 > 0 && ind2 > 0 {
+    for ind1 >= 0 && ind2 >= 0 {
         if traceBackMatrix[ind1][ind2] == "DIAG" { //getting the index of previous step
             fmt.Println("ind1", ind1, "ind2", ind2)
             align1 = append([]byte{byte(seq1[ind1-1])}, align1...) //pre-appends a slice of bytes of length 1 to the existing string (slice of bytes)
@@ -173,7 +173,9 @@ func TraceSequences(seq1, seq2 string, traceBackMatrix [][]string) (string, stri
             fmt.Println("align2", string(align2))
         } else if traceBackMatrix[ind1][ind2] == "UP" {
             fmt.Println("ind1", ind1, "ind2", ind2)
-            align1 = append([]byte{byte(seq1[ind1-1])}, align1...)
+            if ind1 > 0 {
+                align1 = append([]byte{byte(seq1[ind1-1])}, align1...)
+            }
             align2 = append([]byte{'-'}, align2...) //'-' is gap symbol
             ind1-- //don't change the index indicating the horizontal thing
             fmt.Println("align1", string(align1))
@@ -181,7 +183,9 @@ func TraceSequences(seq1, seq2 string, traceBackMatrix [][]string) (string, stri
         } else { //if traceBackMatrix[ind1][ind2] == "LEFT" {
             fmt.Println("ind1", ind1, "ind2", ind2)
             align1 = append([]byte{'-'}, align1...)
-            align2 = append([]byte{byte(seq2[ind2-1])}, align2...)
+            if ind2 > 0 {
+                align2 = append([]byte{byte(seq2[ind2-1])}, align2...)
+            }
             ind2--
             fmt.Println("align1", string(align1))
             fmt.Println("align2", string(align2))
