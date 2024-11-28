@@ -1,58 +1,68 @@
 package main
 import "fmt"
-
+import "os"
+import "strings"
+import "bufio"
 type  Move struct {
     direction string
     value float64
 }
+//This function is used to initialize the first row and first column
+//with gap penalties
+//Input: two seq1 and seq2 string
+//Output: a 2D matrix
+func InitiliazeNeedlemanMatrix2D(seq1 string, seq2 string,gapPenalty float64 )[][]float64{
 
-func GetScoreMatrix2D(seq1 string, seq2 string )[][]float64{
-
-    n1:=len(seq1) + 1 //set number of rows in score matrix
-    n2:=len(seq2) + 1 //set number of columns in score matrix
+    n1:=len(seq1) + 1
+    n2:=len(seq2) + 1
     matrix := make([][]float64,n1)
     for i:=0;i<n1;i++{
         matrix[i] = make([]float64,n2)
 
     }
-    for i:=0;i<n1;i++{ //assigns initial rows
-        matrix[i][0] = -1.0 * float64(i) //this should be generalized for whatever the gap penalty is
+    for i:=0;i<n1;i++{
+        matrix[i][0] = gapPenalty * float64(i)
 
     }
-    for j:=0;j<n2;j++{ //assigns initial cols
-        matrix[0][j] = -1.0 * float64(j)
+    for j:=0;j<n2;j++{
+        matrix[0][j] = gapPenalty * float64(j)
 
     }
     return matrix
 }
-func GetTracebackMatrix2D(seq1 string, seq2 string )[][]string{
+//this function will intialize the traceback matrix
+//Input: seq1 and seq2
+//Output: a list of traceback matrix 
+func InitializeNeedlemanTracebackMatrix2D(seq1 string, seq2 string )[][]string{
 
-    n1:=len(seq1) + 1 //this could be common code with score matrix
+    n1:=len(seq1) + 1
     n2:=len(seq2) + 1
-    matrix := make([][]string,n1) //can we do a matrix of tuples/unit ordered pairs?
+    matrix := make([][]string,n1)
     for i:=0;i<n1;i++{
         matrix[i] = make([]string,n2)
 
     }
     // this is trivial,once we reach the boundary row, we wont need to check direction
     for i:=0;i<n1;i++{
-        matrix[i][0] = "LEFT" //assigns the first column to be "LEFT"- don't think this is correct
+        matrix[i][0] = "UP"
 
     }
     // this is trivial,once we reach the boundary column, we wont need to check direction
     for j:=0;j<n2;j++{
-        matrix[0][j] = "UP" //assigns the first row to be "UP"- again, don't think this is correct
+        matrix[0][j] = "LEFT"
 
     }
-    PrintTracebackMatrix(matrix)
     return matrix
 }
-
-func GetScoreMap(gapPenalty,matchReward,misMatchPenalty float64)map[string](map[string]float64){ //do we need this?
+//this is a helper function which essentially assigns in a dictionary the penalties for match,mismatch and a gap
+//Input: gap,mismatch penalities and match reward
+//Output: a dictionary or a map that specifies what the reward/penalty is for a given token
+//e.g map['A']['A'] = matchReward,map['A']['B'] = mismatchPenalty, map['gap']['gap'] = gapPenalty,
+func ComputeNeedlemanScoreMap(gapPenalty,matchReward,misMatchPenalty float64)map[string](map[string]float64){
     score := make(map[string](map[string]float64))
     /*
     Assume matchReward = 1, misMatch penalty = -1
-     A T G C
+    A T G C
     A 1 -1 -1 -1
     T -1 1 -1 -1
     G -1 -1 1 -1
@@ -60,7 +70,8 @@ func GetScoreMap(gapPenalty,matchReward,misMatchPenalty float64)map[string](map[
     
     
     */
-    alphabets := [8]string{"A","T","G","C","a","t","g","c"}
+    // alphabets := [8]string{"A","T","G","C","a","t","g","c"}
+    alphabets := []string{"A","C","D","E","F","G","H","I","K","L","M","N","P","Q","R","S","T","V","W","Y"}
     for i:=range(alphabets){
         score[alphabets[i]] = make(map[string]float64)
         for j:=range(alphabets){
@@ -76,7 +87,10 @@ func GetScoreMap(gapPenalty,matchReward,misMatchPenalty float64)map[string](map[
     score["gap"]["gap"]  = gapPenalty
     return score
 }
-func GetMaxValue(list [3]float64) float64{ //gets max value from a set of three
+//this is a helper function that essentially helps us find the maximum value in ta 3 element list
+//Input: a list of three floats
+//Output: a float which is the maximum in the input list
+func ComputeNeedlemanMaxValue(list [3]float64) float64{
 
     //help get max value
     max := list[0]
@@ -87,7 +101,11 @@ func GetMaxValue(list [3]float64) float64{ //gets max value from a set of three
     }
     return max
 }
-func GetMaxMove(matrix [][]float64,i,j int,c1,c2 string,scoreMap map[string](map[string]float64)) Move{
+//this is a helper function to compute the maximum value for three possible cells: UP,DIAGONAL,LEFT
+//Input: a 2D matrix of scores, the current indices i,j to look at and a dictionary specifying the scoring mechanism
+//Output: Outputs a Move struct which basically holds the value for the maximum score from the three specified directions as
+//well as the string value for the direction
+func ComputeNeedlemanMaxMove(matrix [][]float64,i,j int,c1,c2 string,scoreMap map[string](map[string]float64)) Move{
     /*
     for a given cell i,j what is the move that will get me the maximum score given cells to my left (i-1,j)
     up (i,j-1) and diagonal (i-1,j-1)
@@ -95,131 +113,206 @@ func GetMaxMove(matrix [][]float64,i,j int,c1,c2 string,scoreMap map[string](map
     diagScore := matrix[i-1][j-1] + scoreMap[c1][c2]
     leftScore := matrix[i][j-1] + scoreMap["gap"]["gap"]
     upScore := matrix[i-1][j] + scoreMap["gap"]["gap"]
-    max := GetMaxValue([3]float64{diagScore,leftScore,upScore})
+    max := ComputeNeedlemanMaxValue([3]float64{diagScore,leftScore,upScore})
     var move Move
     move.value = max
     // checking which move gives me the max score
     if max == diagScore{
         move.direction = "DIAG"
 
-    }else if max == leftScore{
+    } 
+    if max == leftScore{
         move.direction = "LEFT"
 
-    }else{
+    }
+    if max == upScore{
         move.direction =  "UP"
 
     }
     return move
 }
-func ComputeScores(matrix [][]float64,traceBackMatrix [][]string,seq1 string,seq2 string,scoreMap map[string](map[string]float64))([][]float64,[][]string){
+//this function is like a forward pass of the needleman algorthm whereby we compute the score for a given subsequence ending at i,j
+//Input: the input sequences seq1 and seq2 and the scoring dictionary
+//Output: two matrices, the first matrix represents a matrix of alignment scores whereas the second matrix consists of the direction of travel in the forward pass
+// of needleman algorithm e.g which direcion we took from a given cell i,j
+func ComputeNeedlemanScores(seq1 string,seq2 string,scoreMap map[string](map[string]float64))([][]float64,[][]string){
+    matrix := InitiliazeNeedlemanMatrix2D(seq1, seq2,scoreMap["gap"]["gap"])
+    traceBackMatrix := InitializeNeedlemanTracebackMatrix2D(seq1,seq2)
     s1 := len(matrix)
     s2 := len(matrix[0])
     for i:=1;i<s1; i++ {
         for j:=1;j<s2; j++{
-            move := GetMaxMove(matrix,i,j,string(seq1[i-1]),string(seq2[j-1]),scoreMap)
+            move := ComputeNeedlemanMaxMove(matrix,i,j,string(seq1[i-1]),string(seq2[j-1]),scoreMap)
             matrix[i][j] = move.value
             traceBackMatrix[i][j] = move.direction
         }
 
     }
-    PrintMatrix(matrix)
-    PrintTracebackMatrix(traceBackMatrix)
-    // fmt.Println("matrix:",matrix)
-    // fmt.Println("traceBackMatrix:",traceBackMatrix)
+    //fmt.Println("matrix:",matrix)
+    //fmt.Println("traceBackMatrix:",traceBackMatrix)
     return matrix,traceBackMatrix
 
 }
-func PairwiseAligment(seq1 string,seq2 string) (float64, string, string){
-    gapPenalty := -1.0 //not hardcode this?
+//this function will compute the aligned sequences using the traceback matrix
+//Input: sequences seq1 and seq1 and the traceback matrix which has the the direction taken during the Needleman algorithm
+//Output: a pair of aligned sequences
+func ComputeNeedlemanAlignments(seq1 string,seq2 string,traceBackMatrix [][]string)(string,string){
+    n1:=len(seq1) + 1
+    n2:=len(seq2) + 1
+    reverseSeq1 := ""
+    reverseSeq2 := ""
+    i := n1 - 1
+    j := n2 - 1
+    direction := traceBackMatrix[i][j]
+    
+    for i > 0 ||  j > 0{
+        //fmt.Println("Direction:",direction,"i:","j", i,j,"seq1:",reverseSeq1,"seq2:",reverseSeq2)
+        if direction == "DIAG"{
+            if i > 0{
+                reverseSeq1 =  string(seq1[i-1]) + reverseSeq1
+
+            }
+            if j > 0{
+                reverseSeq2 =  string(seq2[j-1]) + reverseSeq2
+
+            }
+            
+            
+            i -=1
+            j-=1
+
+
+        }else if direction == "LEFT"{
+            reverseSeq1 =  "-" + reverseSeq1
+            if j > 0 {
+                reverseSeq2 =  string(seq2[j-1]) + reverseSeq2
+
+            }
+            
+            j-=1
+
+
+        }else if direction == "UP"{
+            if i > 0 {
+                reverseSeq1 =  string(seq1[i-1]) + reverseSeq1
+
+            }
+            
+            reverseSeq2 =  "-"+ reverseSeq2
+            
+            i -=1
+            
+        }
+        direction = traceBackMatrix[i][j] 
+
+    
+    
+    }
+    return reverseSeq1,reverseSeq2
+}
+//just a helper function to visualize matrix nicely
+func PrettyPrintMatrix(m [][]string){
+    a := len(m)
+    for i:=0;i<a;i++{
+        fmt.Println(m[i])
+
+    }
+}
+//this is the needleman algorithm which will be used to align two sequences
+//Input: the two sequences to align seq1 and seq2
+//Output: the aligned sequences for seq1,seq2 as well as the aligment score
+func Needleman(seq1 string,seq2 string) (string,string,float64){
+    gapPenalty := -1.0
     matchReward:= 1.0
     misMatchPenalty := -1.0
     s1,s2 := len(seq1)+1,len(seq2)+1
-    matrix := GetScoreMatrix2D(seq1, seq2)
-    traceBackMatrix := GetTracebackMatrix2D(seq1,seq2)
-    scoreMap := GetScoreMap(gapPenalty,matchReward,misMatchPenalty)
-    fmt.Println("matrix:",matrix)
-    fmt.Println("scoreMap:",scoreMap)
+    //this is the scoring matrix e.g what is the score for a match,mismatch,gap etc
+    scoreMap := ComputeNeedlemanScoreMap(gapPenalty,matchReward,misMatchPenalty) // this initializes the scoring mechanism
+    matrix,traceBackMatrix := ComputeNeedlemanScores(seq1,seq2,scoreMap)
+    //fmt.Println("matrix:",matrix)
+    //fmt.Println("scoreMap:",scoreMap)
+    //PrettyPrintMatrix(traceBackMatrix)
+    alignedSeq1,alignedSeq2 := ComputeNeedlemanAlignments(seq1,seq2,traceBackMatrix)
     
-    
-    matrix,traceBackMatrix = ComputeScores(matrix,traceBackMatrix,seq1,seq2,scoreMap)
-    PrintMatrix(matrix)
-    PrintTracebackMatrix(traceBackMatrix)
-    // fmt.Println("matrix:",matrix)
-    // fmt.Println("traceBackMatrix:",traceBackMatrix)
-    align1, align2 := TraceSequences(seq1, seq2, traceBackMatrix)
-    fmt.Println("align1", align1, "align2", align2)
     alignmentScore := matrix[s1-1][s2-1]
-    return alignmentScore, align1, align2
+
+    return alignedSeq1,alignedSeq2,alignmentScore
 
 }
+//this function will be useful when building the guide tree needed for alignments
+//Input: list of sequences to align
+//Output: a map of maps 
+//The map will represent the dissimilarity between every pair of sequences
+//e.g map[seq1][seq2] = 1 - needleman(seq1,seq2)
+func ConstructDistanceMap(seqs []string)map[string](map[string]float64){
+    score := make(map[string](map[string]float64))
+    /*
+    Assume matchReward = 1, misMatch penalty = -1
+      A T G C
+    A 1 -1 -1 -1
+    T -1 1 -1 -1
+    G -1 -1 1 -1
+    C -1 -1 -1 1
+    
+    
+    */
+    for i:=range(seqs){
+        score[seqs[i]] = make(map[string]float64)
+        for j:=range(seqs){
+            if seqs[i] == seqs[j]{
+                score[seqs[i]][seqs[j]] = 0
+            }else{
+                _,_,alignmentScore := Needleman(seqs[i],seqs[j])
+                score[seqs[i]][seqs[j]] = 1 - alignmentScore
 
-//TraceSequences uses the traceback matrix to assemble a pairwise-aligned seq1 and seq2
-//input: original sequences strings seq1, seq2; traceBackMatrix
-//returns: align1, align2 strings incorporating gaps as '-' where appropriate
-func TraceSequences(seq1, seq2 string, traceBackMatrix [][]string) (string, string) {
-    fmt.Println("aligning sequences:\n", seq1, "\n", seq2)
-    // length := MaxLength(seq1, seq2)
-    align1, align2 := make([]byte, 0), make([]byte, 0) //make empty strings (slices of bytes) to store aligned sequences
-    ind1, ind2 := len(seq1), len(seq2) //start tracing back at the end of each sequence
-    //elements of seq1 are the row labels, elements of seq2 are the column labels
-    for ind1 >= 0 && ind2 >= 0 {
-        if traceBackMatrix[ind1][ind2] == "DIAG" { //getting the index of previous step
-            fmt.Println("ind1", ind1, "ind2", ind2)
-            align1 = append([]byte{byte(seq1[ind1-1])}, align1...) //pre-appends a slice of bytes of length 1 to the existing string (slice of bytes)
-            align2 = append([]byte{byte(seq2[ind2-1])}, align2...)
-            ind1--
-            ind2-- //index is one lower next time around
-            fmt.Println("align1", string(align1))
-            fmt.Println("align2", string(align2))
-        } else if traceBackMatrix[ind1][ind2] == "UP" {
-            fmt.Println("ind1", ind1, "ind2", ind2)
-            if ind1 > 0 {
-                align1 = append([]byte{byte(seq1[ind1-1])}, align1...)
             }
-            align2 = append([]byte{'-'}, align2...) //'-' is gap symbol
-            ind1-- //don't change the index indicating the horizontal thing
-            fmt.Println("align1", string(align1))
-            fmt.Println("align2", string(align2))
-        } else { //if traceBackMatrix[ind1][ind2] == "LEFT" {
-            fmt.Println("ind1", ind1, "ind2", ind2)
-            align1 = append([]byte{'-'}, align1...)
-            if ind2 > 0 {
-                align2 = append([]byte{byte(seq2[ind2-1])}, align2...)
-            }
-            ind2--
-            fmt.Println("align1", string(align1))
-            fmt.Println("align2", string(align2))
         }
     }
-    return string(align1), string(align2)
+    return score
+
 }
+//this is a helper function to read FASTA files
+//Input: the filepath 
+//Output: a map containing the name of the sequence and value cotaining the sequence and an error if any
+func readFastaFile(filename string) (map[string]string, error) {
+	sequences := make(map[string]string)
+	file, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
 
-// func MaxLength(seq1, seq2 string) int {
-//     if len(seq1) > len(seq2) {
-//         return len(seq1)
-//     } else {
-//         return len(seq2)
-//     }
-// }
-
-func PrintMatrix(matrix [][]float64) {
-    for i := range matrix {
-        fmt.Println(matrix[i])
-    }
-}
-
-func PrintTracebackMatrix(matrix [][]string) {
-    for i := range matrix {
-        fmt.Println(matrix[i])
-    }
+	var id string
+	var seq strings.Builder
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if strings.HasPrefix(line, ">") {
+			if id != "" {
+				sequences[id] = seq.String()
+				seq.Reset()
+			}
+			id = line[1:] // Remove ">" from the sequence ID
+		} else {
+			seq.WriteString(line)
+		}
+	}
+	if id != "" {
+		sequences[id] = seq.String()
+	}
+	return sequences, scanner.Err()
 }
 
 func main(){
-    seq1 := "atatat"
-    seq2 := "att"
-    scores, align1, align2 := PairwiseAligment(seq1,seq2)
-    fmt.Println("Score:",scores)
-    fmt.Println(align1)
-    fmt.Println(align2)
+    seq1 :=  "MSLTAKDKSVVKAFWGKISGKADVVGAEALGRVLTAYPQTKTYFSHWADLSPGSGPVKKHGGIIMGAIGKAVGLMDDLVGGMSALSDLHAFNLRVDPGNFKILSHNILVTLAIHFPSDFTPEVHIAVDKFLAVVSAALADKYR"[:20] //ykiss_Rainbow_trou
+    seq2 := "MHLTADDKKHIKAIWPSVAAHGDKYGGEALHRMFMCAPKTKTYFPDFDFSEHSKHILAHGKKVSDALNEACNHLDNIAGCLSKLSDLHAYDLRVDPGNFPLLAHQILVVVAIHFPKQFDPATHKALDKFLVSVSNVLTSKYR"[:20] //Xenopus_tropicalis_Western_clawed_frog
+    alignedSeq1,alignedSeq2,alignmentScore:= Needleman(seq1,seq2)
+    fmt.Println("alignedSeq1:",alignedSeq1)
+    fmt.Println("alignedSeq2:",alignedSeq2)
+    fmt.Println("Score:",alignmentScore)
+    distanceMap := ConstructDistanceMap([]string{seq1,seq2})
+    fmt.Println("distanceMap:",distanceMap)
+
+   
 
 }
