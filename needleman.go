@@ -263,7 +263,7 @@ func ConstructDistanceMap(seqs []string)map[string](map[string]float64){
                 score[seqs[i]][seqs[j]] = 0
             }else{
                 _,_,alignmentScore := Needleman(seqs[i],seqs[j])
-                score[seqs[i]][seqs[j]] = 1 - alignmentScore
+                score[seqs[i]][seqs[j]] = -alignmentScore
 
             }
         }
