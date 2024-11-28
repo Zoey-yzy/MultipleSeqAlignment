@@ -11,7 +11,7 @@ type  Move struct {
 //with gap penalties
 //Input: two seq1 and seq2 string
 //Output: a 2D matrix
-func InitiliazeNeedlemanMatrix2D(seq1 string, seq2 string,gapPenalty float64 )[][]float64{
+func InitializeNeedlemanMatrix2D(seq1 string, seq2 string,gapPenalty float64 )[][]float64{
 
     n1:=len(seq1) + 1
     n2:=len(seq2) + 1
@@ -136,7 +136,7 @@ func ComputeNeedlemanMaxMove(matrix [][]float64,i,j int,c1,c2 string,scoreMap ma
 //Output: two matrices, the first matrix represents a matrix of alignment scores whereas the second matrix consists of the direction of travel in the forward pass
 // of needleman algorithm e.g which direcion we took from a given cell i,j
 func ComputeNeedlemanScores(seq1 string,seq2 string,scoreMap map[string](map[string]float64))([][]float64,[][]string){
-    matrix := InitiliazeNeedlemanMatrix2D(seq1, seq2,scoreMap["gap"]["gap"])
+    matrix := InitializeNeedlemanMatrix2D(seq1, seq2,scoreMap["gap"]["gap"])
     traceBackMatrix := InitializeNeedlemanTracebackMatrix2D(seq1,seq2)
     s1 := len(matrix)
     s2 := len(matrix[0])
@@ -163,50 +163,33 @@ func ComputeNeedlemanAlignments(seq1 string,seq2 string,traceBackMatrix [][]stri
     reverseSeq2 := ""
     i := n1 - 1
     j := n2 - 1
-    direction := traceBackMatrix[i][j]
+    direction := traceBackMatrix[i][j] //start at max row and col of matrix
     
-    for i > 0 ||  j > 0{
+    for i > 0 ||  j > 0 {
         //fmt.Println("Direction:",direction,"i:","j", i,j,"seq1:",reverseSeq1,"seq2:",reverseSeq2)
         if direction == "DIAG"{
-            if i > 0{
+            if i > 0 {
                 reverseSeq1 =  string(seq1[i-1]) + reverseSeq1
-
             }
-            if j > 0{
+            if j > 0 {
                 reverseSeq2 =  string(seq2[j-1]) + reverseSeq2
-
-            }
-            
-            
+            }         
             i -=1
             j-=1
-
-
-        }else if direction == "LEFT"{
+        } else if direction == "LEFT"{
             reverseSeq1 =  "-" + reverseSeq1
             if j > 0 {
                 reverseSeq2 =  string(seq2[j-1]) + reverseSeq2
-
             }
-            
             j-=1
-
-
-        }else if direction == "UP"{
+        } else if direction == "UP"{
             if i > 0 {
                 reverseSeq1 =  string(seq1[i-1]) + reverseSeq1
-
             }
-            
             reverseSeq2 =  "-"+ reverseSeq2
-            
-            i -=1
-            
+            i -=1 
         }
-        direction = traceBackMatrix[i][j] 
-
-    
-    
+        direction = traceBackMatrix[i][j]    
     }
     return reverseSeq1,reverseSeq2
 }
@@ -218,7 +201,7 @@ func PrettyPrintMatrix(m [][]string){
 
     }
 }
-//this is the needleman algorithm which will be used to align two sequences
+//this is the highest-level needleman algorithm which will be used to align two sequences
 //Input: the two sequences to align seq1 and seq2
 //Output: the aligned sequences for seq1,seq2 as well as the aligment score
 func Needleman(seq1 string,seq2 string) (string,string,float64){
@@ -228,13 +211,14 @@ func Needleman(seq1 string,seq2 string) (string,string,float64){
     s1,s2 := len(seq1)+1,len(seq2)+1
     //this is the scoring matrix e.g what is the score for a match,mismatch,gap etc
     scoreMap := ComputeNeedlemanScoreMap(gapPenalty,matchReward,misMatchPenalty) // this initializes the scoring mechanism
+    //should change this part to take in a "scoring lookup table" to get match/mismatch scores from a .csv file in main.go or io.go
     matrix,traceBackMatrix := ComputeNeedlemanScores(seq1,seq2,scoreMap)
     //fmt.Println("matrix:",matrix)
     //fmt.Println("scoreMap:",scoreMap)
     //PrettyPrintMatrix(traceBackMatrix)
     alignedSeq1,alignedSeq2 := ComputeNeedlemanAlignments(seq1,seq2,traceBackMatrix)
     
-    alignmentScore := matrix[s1-1][s2-1]
+    alignmentScore := matrix[s1-1][s2-1] //the score taken from bottom corner is the alignment score- use this to build difference matrix
 
     return alignedSeq1,alignedSeq2,alignmentScore
 
