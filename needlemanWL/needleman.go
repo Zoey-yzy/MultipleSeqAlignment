@@ -1,8 +1,8 @@
 package main
 import "fmt"
-import "os"
-import "strings"
-import "bufio"
+//import "os"
+//import "strings"
+//import "bufio"
 type  Move struct {
     direction string
     value float64
@@ -255,48 +255,18 @@ func ConstructDistanceMap(seqs []string)map[string](map[string]float64){
     return score
 
 }
-//this is a helper function to read FASTA files
-//Input: the filepath 
-//Output: a map containing the name of the sequence and value cotaining the sequence and an error if any
-func readFastaFile(filename string) (map[string]string, error) {
-	sequences := make(map[string]string)
-	file, err := os.Open(filename)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
 
-	var id string
-	var seq strings.Builder
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.HasPrefix(line, ">") {
-			if id != "" {
-				sequences[id] = seq.String()
-				seq.Reset()
-			}
-			id = line[1:] // Remove ">" from the sequence ID
-		} else {
-			seq.WriteString(line)
-		}
-	}
-	if id != "" {
-		sequences[id] = seq.String()
-	}
-	return sequences, scanner.Err()
-}
 
-func main(){
-    seq1 :=  "MSLTAKDKSVVKAFWGKISGKADVVGAEALGRVLTAYPQTKTYFSHWADLSPGSGPVKKHGGIIMGAIGKAVGLMDDLVGGMSALSDLHAFNLRVDPGNFKILSHNILVTLAIHFPSDFTPEVHIAVDKFLAVVSAALADKYR"[:20] //ykiss_Rainbow_trou
-    seq2 := "MHLTADDKKHIKAIWPSVAAHGDKYGGEALHRMFMCAPKTKTYFPDFDFSEHSKHILAHGKKVSDALNEACNHLDNIAGCLSKLSDLHAYDLRVDPGNFPLLAHQILVVVAIHFPKQFDPATHKALDKFLVSVSNVLTSKYR"[:20] //Xenopus_tropicalis_Western_clawed_frog
-    alignedSeq1,alignedSeq2,alignmentScore:= Needleman(seq1,seq2)
-    fmt.Println("alignedSeq1:",alignedSeq1)
-    fmt.Println("alignedSeq2:",alignedSeq2)
-    fmt.Println("Score:",alignmentScore)
-    distanceMap := ConstructDistanceMap([]string{seq1,seq2})
-    fmt.Println("distanceMap:",distanceMap)
+// func main(){
+//     seq1 :=  "MSLTAKDKSVVKAFWGKISGKADVVGAEALGRVLTAYPQTKTYFSHWADLSPGSGPVKKHGGIIMGAIGKAVGLMDDLVGGMSALSDLHAFNLRVDPGNFKILSHNILVTLAIHFPSDFTPEVHIAVDKFLAVVSAALADKYR"[:20] //ykiss_Rainbow_trou
+//     seq2 := "MHLTADDKKHIKAIWPSVAAHGDKYGGEALHRMFMCAPKTKTYFPDFDFSEHSKHILAHGKKVSDALNEACNHLDNIAGCLSKLSDLHAYDLRVDPGNFPLLAHQILVVVAIHFPKQFDPATHKALDKFLVSVSNVLTSKYR"[:20] //Xenopus_tropicalis_Western_clawed_frog
+//     alignedSeq1,alignedSeq2,alignmentScore:= Needleman(seq1,seq2)
+//     fmt.Println("alignedSeq1:",alignedSeq1)
+//     fmt.Println("alignedSeq2:",alignedSeq2)
+//     fmt.Println("Score:",alignmentScore)
+//     distanceMap := ConstructDistanceMap([]string{seq1,seq2})
+//     fmt.Println("distanceMap:",distanceMap)
 
    
 
-}
+// }

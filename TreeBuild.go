@@ -1,4 +1,8 @@
+package main 
 // tree construction using neighbor joining method
+import(
+	"strconv"
+)
 type Tree []*Node
 type Node struct{
 	neighbor1, neighbor2 *Node  
@@ -7,20 +11,20 @@ type Node struct{
 }
 // high level function of neighbor joining method
 func NJ(mtx [][]float64, sequences []string)Tree{
-	tree := InitializeTree(mtx, sequences)
+	tree := InitializeTree(sequences)
 	num := len(sequences)
-	clusters := InitializeClusters(sequences)
+	clusters := tree.InitializeClusters()
 	for p:=num;p<2*num-1;p++{
 		row, col := FindMinDist(mtx)
 		tree[row].distance = CalcDist(mtx, row, col)
 		tree[col].distance = CalcDist(mtx, col, row)
-		tree[p].neighbor1 = &tree[row]
-		tree[p].neighbor2 = &tree[col]
+		tree[p].neighbor1 = tree[row]
+		tree[p].neighbor2 = tree[col]
 		// tree[p].sequence = TraceBackSeq(tree[p].neighbor1, tree[p].neighbor2) // need to call function in needleman
 		
 		// first, add a row and column corresponding to new cluster
 		
-		mtx = AddRowCol(row, col, clusterSize1, clusterSize2, mtx)
+		mtx = AddRowCol(row, col, mtx)
 		mtx = DeleteRowCol(mtx, row, col)
 
 		// finally, we clean up clusters
@@ -36,7 +40,7 @@ func NJ(mtx [][]float64, sequences []string)Tree{
 func FindMinDist(mtx [][]float64)(int, int){
 	numRows := len(mtx)
 	if numRows < 3{
-		return 0,1,mtx[0][1]
+		return 0,1
 	}else{
 		AdjMatrix := AdjustMatrix(mtx)
 		row := 0
@@ -61,8 +65,9 @@ func FindMinDist(mtx [][]float64)(int, int){
 	}
 }
 // Calculate the divergence and the adjusted distance
-func CalcDivergence(mtx [][]flaot64, numClusters int)[]float64{
+func CalcDivergence(mtx [][]float64)[]float64{
 	divergence := make([]float64, len(mtx))
+	numClusters := len(mtx)
 	for row := range mtx{
 		sum := 0.0
 		for _, val := range mtx[row]{
@@ -76,14 +81,20 @@ func CalcDivergence(mtx [][]flaot64, numClusters int)[]float64{
 
 // Adjust the original matrix to gain the adjusted distances
 func AdjustMatrix(mtx [][]float64)[][]float64{
+	numRows := len(mtx)
 	AdjMatrix := make([][]float64, numRows)
 	for row := range mtx{
 		AdjMatrix[row] = make([]float64, len(mtx[row]))
 	}
-	Divergence := CalcDivergence(mtx, numRows)
+	Divergence := CalcDivergence(mtx)
 	for i := range mtx{
 		for j := range mtx[i]{
-			AdjMatrix[i][j] = mtx[i][j] - Divergence[i] - Divergence[j]
+			if i != j{
+				AdjMatrix[i][j] = mtx[i][j] - Divergence[i] - Divergence[j]
+			}else{
+				AdjMatrix[i][j] = mtx[i][j]
+			}
+			
 		}
 	}
 	return AdjMatrix 
@@ -91,7 +102,7 @@ func AdjustMatrix(mtx [][]float64)[][]float64{
 
 // Calculate the distance between the two children and their parent
 func CalcDist(mtx [][]float64, idx1, idx2 int)float64{
-	divergence := CalcDivergence(mtx,len(mtx))
+	divergence := CalcDivergence(mtx)
 	div1 := divergence[idx1]
 	div2 := divergence[idx2]
 	return (mtx[idx1][idx2] + div1 - div2) / 2.0
@@ -148,9 +159,9 @@ func DeleteRowCol(mtx [][]float64, row, col int) [][]float64 {
 
 // Update the clusters that track our disconnected nodes of the tree
 
-func DeleteCluster(clusters []*Node, row, col int)[]*Node{
-	clusters = append(clusers[:col], clusters[col+1:])
-	clusters = apend(clusters[:row], clusters[row+1:])
+func DeleteClusters(clusters []*Node, row, col int)[]*Node{
+	clusters = append(clusters[:col], clusters[col+1:]...)
+	clusters = append(clusters[:row], clusters[row+1:]...)
 	return clusters 
 }
 
@@ -158,11 +169,17 @@ func DeleteCluster(clusters []*Node, row, col int)[]*Node{
 // we leave space for parent nodes that would be added later
 
 func InitializeTree(sequences []string)Tree{
+	var tree Tree 
 	num := len(sequences)
-	tree := make(Tree, 2*num-1) 
-	for i,seq := range sequences{
+	tree = make([]*Node, 2*num-1) 
+
+	for i := range tree{
 		var node Node
-		node.sequence = seq
+		if i < num {
+			node.sequence = sequences[i]
+		}else{
+			node.sequence = "aligned sequence" + strconv.Itoa(i)
+		}
 		tree[i] = &node
 	}
 	return tree  
@@ -185,4 +202,18 @@ func (tree Tree) InitializeClusters() []*Node {
 	}
 
 	return clusters
+}
+func IstheSame(mtx1,mtx2 [][]float64)bool{
+	if len(mtx1) != len(mtx2) || len(mtx1[0]) != len(mtx2[0]){
+		panic("unmatched length of the two matrices")
+	}
+	result := true
+	for row := range mtx1{
+		for col := range mtx1[0]{
+			if mtx1[row][col] != mtx2[row][col]{
+				result = false
+			}
+		}
+	}
+	return result 
 }
