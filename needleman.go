@@ -21,16 +21,16 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
     //colSeqs is going to be the col labels- the sequences going horizontally across the top of matrix
 
     //add a gap symbol to the start of every sequence, then remove it before you exit this function
-    fmt.Println("length is", len(rowSeqs[0].sequence))
-    fmt.Println("sequence:", rowSeqs[0].sequence)
+    // fmt.Println("length is", len(rowSeqs[0].sequence))
+    // fmt.Println("sequence:", rowSeqs[0].sequence)
     for i := 0; i < len(rowSeqs); i++ {
         rowSeqs[i].sequence = "-" + rowSeqs[i].sequence
     }
     for i := 0; i < len(colSeqs); i++ {
         colSeqs[i].sequence = "-" + colSeqs[i].sequence
     }
-    fmt.Println("length is", len(rowSeqs[0].sequence))
-    fmt.Println("sequence:", rowSeqs[0].sequence)
+    // fmt.Println("length is", len(rowSeqs[0].sequence))
+    // fmt.Println("sequence:", rowSeqs[0].sequence)
     rowLen, colLen := len(rowSeqs[0].sequence), len(colSeqs[0].sequence)
     //if 1 sequence in row, col, then it's obviously the max, if multiple, they should be aligned and all lengths are equal
     //this is the scoring matrix e.g what is the score for a match,mismatch,gap etc
@@ -45,7 +45,15 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
     
     alignmentScore := matrix[rowLen-1][colLen-1] //the score taken from bottom corner is the alignment score- use this to build difference matrix
 
-    //remove the gap symbol from the start of the sequences
+    //remove the gap symbol from the start of the alignedSeqs
+    // seq = "-wefaweioafj"
+    // seq = seq[1:]
+    for i := 0; i < len(rowSeqs); i++ {
+        rowSeqs[i].sequence = rowSeqs[i].sequence[1:]
+    }
+    for i := 0; i < len(colSeqs); i++ {
+        colSeqs[i].sequence = colSeqs[i].sequence[1:]
+    }
 
     return alignedSeqs, alignmentScore
 }
@@ -58,8 +66,20 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
     n2 := len(colSeqs[0].sequence)//no +1 because gap symbol already added to 1st position- sequence[0] is always "-" which you can use
     fmt.Println("length is", len(rowSeqs[0].sequence))
     //make a slice of sequences (strings) for rowSeq, colSeq, equal to how many there are, set them each to ""
-    newRowSeqs := make([]string, len(rowSeqs))
-    newColSeqs := make([]string, len(colSeqs)) //will have default value of ""
+    newRowSeqs := make([]Sequence, len(rowSeqs))
+    newColSeqs := make([]Sequence, len(colSeqs)) //will have default value of ""
+    newRowSeq := make([]string, len(rowSeqs))
+    newColSeq := make([]string, len(colSeqs)) //will have default value of ""
+
+    //
+    for i := 0; i < len(newRowSeqs); i++ {
+        newRowSeqs[i].info = rowSeqs[i].info
+        newRowSeqs[i].sequence = ""
+    }
+    for i := 0; i < len(newColSeqs); i++ {
+        newColSeqs[i].info = colSeqs[i].info
+        newColSeqs[i].sequence = ""
+    }
 
     // newSeq1 := ""
     // newSeq2 := ""
@@ -74,41 +94,41 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
         //fmt.Println("Direction:",direction,"i:","j", i,j,"seq1:",newSeq1,"seq2:",newSeq2)
         if direction == "DIAG"{
             if i > 0 {
-                for m := 0; m < len(newRowSeqs); m++ {
-                    newRowSeqs[m] = string(rowSeqs[m].sequence[i]) + newRowSeqs[m]
+                for m := 0; m < len(newRowSeq); m++ {
+                    newRowSeq[m] = string(rowSeqs[m].sequence[i]) + newRowSeq[m]
                     // fmt.Println(string(rowSeqs[m].sequence[i]))
                 }
                 // newSeq1 =  string(seq1[i-1]) + newSeq1
             }
             if j > 0 {
-                for n := 0; n < len(newColSeqs); n++ {
-                    newColSeqs[n] = string(colSeqs[n].sequence[j]) + newColSeqs[n]
+                for n := 0; n < len(newColSeq); n++ {
+                    newColSeq[n] = string(colSeqs[n].sequence[j]) + newColSeq[n]
                 }
                 // newSeq2 =  string(seq2[j-1]) + newSeq2
             }         
             i--
             j--
         } else if direction == "LEFT"{
-            for m := 0; m < len(newRowSeqs); m++ {
-                newRowSeqs[m] = "-" + newRowSeqs[m]
+            for m := 0; m < len(newRowSeq); m++ {
+                newRowSeq[m] = "-" + newRowSeq[m]
             }
             // newSeq1 =  "-" + newSeq1
             if j > 0 {
-                for n := 0; n < len(newColSeqs); n++ {
-                    newColSeqs[n] = string(colSeqs[n].sequence[j]) + newColSeqs[n]
+                for n := 0; n < len(newColSeq); n++ {
+                    newColSeq[n] = string(colSeqs[n].sequence[j]) + newColSeq[n]
                 }
                 // newSeq2 =  string(seq2[j-1]) + newSeq2
             }
             j--
         } else if direction == "UP"{
             if i > 0 {
-                for m := 0; m < len(newRowSeqs); m++ {
-                    newRowSeqs[m] = string(rowSeqs[m].sequence[i]) + newRowSeqs[m]
+                for m := 0; m < len(newRowSeq); m++ {
+                    newRowSeq[m] = string(rowSeqs[m].sequence[i]) + newRowSeq[m]
                 }
                 // newSeq1 =  string(seq1[i-1]) + newSeq1
             }
-            for n := 0; n < len(newColSeqs); n++ {
-                newColSeqs[n] = "-" + newColSeqs[n]
+            for n := 0; n < len(newColSeq); n++ {
+                newColSeq[n] = "-" + newColSeq[n]
             }
             // newSeq2 =  "-"+ newSeq2
             i-- 
@@ -119,13 +139,13 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
 
     //now, replace the old sequences in rowSeqs and colSeqs with the sequences in new ones
     for i := 0; i < len(rowSeqs); i++ {
-        rowSeqs[i].sequence = newRowSeqs[i]
+        newRowSeqs[i].sequence = newRowSeq[i]
     }
     for j := 0; j < len(colSeqs); j++ {
-        colSeqs[j].sequence = newColSeqs[j]
+        newColSeqs[j].sequence = newColSeq[j]
     }
     //combine rowSeqs and colSeqs into one sequences object
-    mergedSeqs := append(rowSeqs, colSeqs...)
+    mergedSeqs := append(newRowSeqs, newColSeqs...)
 
     return mergedSeqs
 }
@@ -190,6 +210,8 @@ func SumOfPairs(rowSeqs, colSeqs Sequences, rowInd, colInd int, subMatrix Matrix
     //for every seq in rowSeqs
     for i:= 0; i < len(rowSeqs); i++ {
         for j := 0; j < len(colSeqs); j++ { //i and j are indexes of the lists of sequences on the row and on the column
+            // fmt.Println("i, j", i, j)
+            // fmt.Println("rowInd, colInd, rowSeqs", rowInd, colInd, len(rowSeqs))
             symbol1 := string(rowSeqs[i].sequence[rowInd])
             symbol2 := string(colSeqs[j].sequence[colInd])
             score := subMatrix[symbol1][symbol2]
