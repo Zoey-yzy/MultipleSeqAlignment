@@ -1,0 +1,12 @@
+>seq1
+ATGC
+>seq2
+A-GC
+>seq3
+ATCC
+>seq4
+AG--
+>seq5
+ACCC
+>seq6
+ATGC
