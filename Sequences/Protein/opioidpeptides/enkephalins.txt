@@ -1,0 +1,4 @@
+>sp|P01210|100-104|Met-Enkephalin
+YGGFM
+>sp|P01210|230-234|Leu-Enkephalin
+YGGFL
