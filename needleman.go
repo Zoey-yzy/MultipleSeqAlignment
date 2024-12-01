@@ -8,9 +8,9 @@ type  Move struct {
     value float64
 }
 
-//this is the highest-level needleman algorithm which will be used to align two sequences
-//Input: the two sequences to align seq1 and seq2
-//Output: the aligned sequences for seq1,seq2 as well as the aligment score
+//this is the highest-level needleman algorithm which will be used to align two sequences or two sets of sequences
+//Input: the two sequences- rowSeqs and colSeqs, a scoring matrix subMatrix type Matrix
+//Output: a combined, aligned Sequences object, as well as the aligment score
 func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, int){
     // gapPenalty := -1.0 //how do i deal with you?- it's part of the reading-in function now
     // matchReward:= 1.0
@@ -41,6 +41,9 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
     //fmt.Println("matrix:",matrix)
     //fmt.Println("scoreMap:",scoreMap)
     //PrettyPrintMatrix(traceBackMatrix)
+    for i := 0; i < len(matrix); i++ {
+        fmt.Println(matrix[i])
+    }
     alignedSeqs := GetAlignments(rowSeqs, colSeqs, traceBackMatrix)
     
     alignmentScore := matrix[rowLen-1][colLen-1] //the score taken from bottom corner is the alignment score- use this to build difference matrix
@@ -59,19 +62,19 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
 }
 
 //this function will compute the aligned sequences using the traceback matrix
-//Input: sequences seq1 and seq1 and the traceback matrix which has the the direction taken during the Needleman algorithm
-//Output: a pair of aligned sequences
+//Input: Sequences rowSeqs and colSeqs, the traceback matrix which has the the direction taken during the Needleman algorithm
+//Output: a Sequences object, consisting of rowSeqs and colSeqs sequences, aligned
 func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Sequences{
     n1 := len(rowSeqs[0].sequence) //rowSeq might be diff length from colSeq but all seqs in each are the same length
     n2 := len(colSeqs[0].sequence)//no +1 because gap symbol already added to 1st position- sequence[0] is always "-" which you can use
     fmt.Println("length is", len(rowSeqs[0].sequence))
     //make a slice of sequences (strings) for rowSeq, colSeq, equal to how many there are, set them each to ""
     newRowSeqs := make([]Sequence, len(rowSeqs))
-    newColSeqs := make([]Sequence, len(colSeqs)) //will have default value of ""
+    newColSeqs := make([]Sequence, len(colSeqs)) //make new Sequences objects
     newRowSeq := make([]string, len(rowSeqs))
     newColSeq := make([]string, len(colSeqs)) //will have default value of ""
 
-    //
+    //fill each one with the appropriate sequence info
     for i := 0; i < len(newRowSeqs); i++ {
         newRowSeqs[i].info = rowSeqs[i].info
         newRowSeqs[i].sequence = ""
@@ -92,7 +95,7 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
     
     for i > 0 || j > 0 {
         //fmt.Println("Direction:",direction,"i:","j", i,j,"seq1:",newSeq1,"seq2:",newSeq2)
-        if direction == "DIAG"{
+        if direction == "DIAG"{ //add the character at that position to everybody, decrement i and j by 1
             if i > 0 {
                 for m := 0; m < len(newRowSeq); m++ {
                     newRowSeq[m] = string(rowSeqs[m].sequence[i]) + newRowSeq[m]
@@ -108,7 +111,7 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
             }         
             i--
             j--
-        } else if direction == "LEFT"{
+        } else if direction == "LEFT"{ //add character at that position to column sequence, "-" to row; decrement the column count by 1
             for m := 0; m < len(newRowSeq); m++ {
                 newRowSeq[m] = "-" + newRowSeq[m]
             }
@@ -120,7 +123,7 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
                 // newSeq2 =  string(seq2[j-1]) + newSeq2
             }
             j--
-        } else if direction == "UP"{
+        } else if direction == "UP"{ //add character at that position to row sequence, "-" to column; decrement the row count by 1
             if i > 0 {
                 for m := 0; m < len(newRowSeq); m++ {
                     newRowSeq[m] = string(rowSeqs[m].sequence[i]) + newRowSeq[m]
@@ -151,7 +154,7 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
 }
 
 //this function is like a forward pass of the needleman algorthm whereby we compute the score for a given subsequence ending at i,j
-//Input: the input sequences seq1 and seq2 and the scoring dictionary
+//Input: the input Sequences (single or multiple aligned) rowSeqs and colSeqs, the scoring dictionary subMatrix
 //Output: two matrices, the first matrix represents a matrix of alignment scores whereas the second matrix consists of the direction of travel in the forward pass
 // of needleman algorithm e.g which direcion we took from a given cell i,j
 func ComputeNWScores(rowSeqs, colSeqs Sequences, subMatrix Matrix) ([][]int, [][]string){
@@ -189,8 +192,6 @@ func InitializeNWMatrix2D(rowSeqs, colSeqs Sequences, subMatrix Matrix) [][]int 
 
     //if you're SumOfPairs of gap for "UP" or "LEFT" use index 0 for the respective index
     matrix[0][0] = SumOfPairs(rowSeqs, colSeqs, 0, 0, subMatrix)
-    //0
-
     for i := 1; i < n1; i++ {
         matrix[i][0] = SumOfPairs(rowSeqs, colSeqs, i, 0, subMatrix) + matrix[i-1][0] //the only neighbor is to your left
         // matrix[i][0] = gapPenalty * float64(i)
@@ -212,7 +213,7 @@ func SumOfPairs(rowSeqs, colSeqs Sequences, rowInd, colInd int, subMatrix Matrix
         for j := 0; j < len(colSeqs); j++ { //i and j are indexes of the lists of sequences on the row and on the column
             // fmt.Println("i, j", i, j)
             // fmt.Println("rowInd, colInd, rowSeqs", rowInd, colInd, len(rowSeqs))
-            symbol1 := string(rowSeqs[i].sequence[rowInd])
+            symbol1 := string(rowSeqs[i].sequence[rowInd]) //rowInd indicates which letter in the sequences to use
             symbol2 := string(colSeqs[j].sequence[colInd])
             score := subMatrix[symbol1][symbol2]
             sopScore += score
@@ -222,8 +223,8 @@ func SumOfPairs(rowSeqs, colSeqs Sequences, rowInd, colInd int, subMatrix Matrix
 }
 
 //this function will intialize the traceback matrix
-//Input: seq1 and seq2
-//Output: a list of traceback matrix 
+//Input: rowSeqs, colSeqs Sequences- just lengths
+//Output: a traceback matrix- 2D slice of strings
 func InitializeNWTracebackMatrix2D(rowSeqs, colSeqs Sequences) [][]string {
     n1 := len(rowSeqs[0].sequence) 
     n2 := len(colSeqs[0].sequence)//no +1 because gap symbol already added to 1st position- sequence[0] is always "-" which you can use
@@ -248,8 +249,8 @@ func InitializeNWTracebackMatrix2D(rowSeqs, colSeqs Sequences) [][]string {
 }
 
 //this is a helper function that essentially helps us find the maximum value in ta 3 element list
-//Input: a list of three floats
-//Output: a float which is the maximum in the input list
+//Input: a list of three ints
+//Output: an int which is the maximum in the input list
 func ComputeNWMax(list [3]int) int{
     //help get max value
     max := list[0]
@@ -261,9 +262,8 @@ func ComputeNWMax(list [3]int) int{
     return max
 }
 //this is a helper function to compute the maximum value for three possible cells: UP,DIAGONAL,LEFT
-//Input: a 2D matrix of scores, the current indices i,j to look at and a dictionary specifying the scoring mechanism
-//Output: Outputs a Move struct which basically holds the value for the maximum score from the three specified directions as
-//well as the string value for the direction
+//Input: a 2D matrix ints containing scores, rowSeqs and colSeqs the Sequences being aligned, the current indices rowInd, colInd to look at and a Matrix submatrix specifying the scoring mechanism
+//Output: int value for the maximum score from the three specified directions and the string value for the direction
 func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd int, subMatrix Matrix) (int, string){
     /*
     for a given cell i,j what is the move that will get me the maximum score given cells to my left (i-1,j)
@@ -273,7 +273,6 @@ func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd
     upScore := matrix[rowInd-1][colInd] + SumOfPairs(rowSeqs, colSeqs, 0, colInd, subMatrix) //0 is always gap
     diagScore := matrix[rowInd-1][colInd-1] + SumOfPairs(rowSeqs, colSeqs, rowInd, colInd, subMatrix)
     leftScore := matrix[rowInd][colInd-1] + SumOfPairs(rowSeqs, colSeqs, rowInd, 0, subMatrix) //0 is always gap
-
     // diagScore := matrix[i-1][j-1] + scoreMap[c1][c2]
     // leftScore := matrix[i][j-1] + scoreMap["gap"]["gap"]
     // upScore := matrix[i-1][j] + scoreMap["gap"]["gap"]

@@ -20,6 +20,7 @@ type Matrix map[string]map[string]int
 type Sequence struct{
     sequence    string
     info        string //we don't know what source yet, so we don't know how the FASTA header is formatted aside from "<"
+    //match     string //same length as sequence- "*" if letter at this position matches everybody else, "^" otherwise, ???
 }
 
 //input format for MSA- of unaligned sequences, as well as outputs of aligned sequences
@@ -37,9 +38,9 @@ func main() {
     //later change this to be doable through RShiny- folder browsing or dropdown menu
     //reading scoring matrix
     fmt.Println("reading scoring matrix")
-    seqType := "DNA"
+    seqType := "Protein"
     fmt.Println("working with", seqType)
-	filename := "standardDNA.csv"
+	filename := "BLOSUM62.csv"
     subMatrix, err := ReadScoringMatrix(seqType, filename, gapScore) //subMatrix contains the reference scoring matrix
     if err != nil {
         fmt.Println("Error:", err)
@@ -51,7 +52,7 @@ func main() {
 
     //reading sequences
     fmt.Println("reading sequences")
-    folderName := "alignmenttest2"
+    folderName := "adrenomedullin"
     seqs, err := ReadFASTAInput(seqType, folderName) //seqs is a Sequences object
     if err != nil {
         fmt.Println("Error:", err)
@@ -64,39 +65,40 @@ func main() {
         fmt.Println(seq.info, seq.sequence)
     }
 
-    seqStack, score := NeedlemanWunsch(seqs[0:3], seqs[3:6], subMatrix)
-    PrintSequencesList(seqStack)
-    fmt.Println(score)
-    // has out of bounds error
+    // //to test the alignments- use alignmenttest2 or alignmenttest folders, either in DNA or Protein
+    // seqStack, score := NeedlemanWunsch(seqs[0:3], seqs[3:6], subMatrix)
+    // PrintSequencesList(seqStack)
+    // fmt.Println("score is", score)
+    // //has out of bounds error
 
-    // //code for multiple NWs on multiple sequences
-    // // var distanceMatrix Matrix 
-    // // distanceMatrix := make(Matrix) //hold int scores- results of pairwise alignments
-    // distanceMatrix := make([][]int, len(seqs))
-    // seqMatrix := make([][]Sequences, len(seqs))
-    // // var seqMatrix SequenceMatrix //hold Sequences objects of length 2- no need to redo alignments when filling guide tree nodes, just fill from here
-    // for i := 0; i < len(seqs); i++ {
-    //     distanceMatrix[i] = make([]int, len(seqs))
-    //     seqMatrix[i] = make([]Sequences, len(seqs))
-    //     for j := i+1; j < len(seqs); j++ {
-    //         // fmt.Println("printing", seqs[i:i+1], seqs[j:j+1])
-    //         alignedTwo, score := NeedlemanWunsch(seqs[i:i+1], seqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
-    //         PrintSequencesList(alignedTwo)
-    //         fmt.Println("alignment score is", score)
-    //         distanceMatrix[i][j] = score*-1
-    //         seqMatrix[i][j] = alignedTwo
-    //         // distanceMatrix.UpdateDistMatrix(seqs[i].info, seqs[j].info, score)
-    //         // innerMap := make(map[string]int)
-    //         // fmt.Println("score passed into update function is", score)
-    //         // innerMap[seqs[j].info] = score
-    //         // distanceMatrix[seqs[i].info] = innerMap //why is the value 0?
-    //         // fmt.Println("distance matrix looks like: ")
-    //         fmt.Println(distanceMatrix)
-    //         // PrintSubMatrix(distanceMatrix)
-    //         // distanceMatrix[seqs[i].info][seqs[j].info] = score
-    //         // seqMatrix[seqs[i].info][seqs[j].info] = alignedTwo
-    //     }
-    // }
+    //code for multiple NWs on multiple sequences
+    // var distanceMatrix Matrix 
+    // distanceMatrix := make(Matrix) 
+    distanceMatrix := make([][]int, len(seqs)) //hold int scores- results of pairwise alignments
+    seqMatrix := make([][]Sequences, len(seqs)) //hold Sequences objects of length 2- no need to redo alignments when filling guide tree nodes, just fill from here
+    // var seqMatrix SequenceMatrix 
+    for i := 0; i < len(seqs); i++ {
+        distanceMatrix[i] = make([]int, len(seqs))
+        seqMatrix[i] = make([]Sequences, len(seqs))
+        for j := i+1; j < len(seqs); j++ {
+            // fmt.Println("printing", seqs[i:i+1], seqs[j:j+1])
+            alignedTwo, score := NeedlemanWunsch(seqs[i:i+1], seqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
+            PrintSequencesList(alignedTwo)
+            fmt.Println("alignment score is", score)
+            distanceMatrix[i][j] = score*-1
+            seqMatrix[i][j] = alignedTwo
+            // distanceMatrix.UpdateDistMatrix(seqs[i].info, seqs[j].info, score)
+            // innerMap := make(map[string]int)
+            // fmt.Println("score passed into update function is", score)
+            // innerMap[seqs[j].info] = score
+            // distanceMatrix[seqs[i].info] = innerMap //why is the value 0?
+            // fmt.Println("distance matrix looks like: ")
+            fmt.Println(distanceMatrix)
+            // PrintSubMatrix(distanceMatrix)
+            // distanceMatrix[seqs[i].info][seqs[j].info] = score
+            // seqMatrix[seqs[i].info][seqs[j].info] = alignedTwo
+        }
+    }
 
     // seq1 :=  "MSLTAKDKSVVKAFWGKISGKADVVGAEALGRVLTAYPQTKTYFSHWADLSPGSGPVKKHGGIIMGAIGKAVGLMDDLVGGMSALSDLHAFNLRVDPGNFKILSHNILVTLAIHFPSDFTPEVHIAVDKFLAVVSAALADKYR"[:20] //ykiss_Rainbow_trou
     // seq2 := "MHLTADDKKHIKAIWPSVAAHGDKYGGEALHRMFMCAPKTKTYFPDFDFSEHSKHILAHGKKVSDALNEACNHLDNIAGCLSKLSDLHAYDLRVDPGNFPLLAHQILVVVAIHFPKQFDPATHKALDKFLVSVSNVLTSKYR"[:20] //Xenopus_tropicalis_Western_clawed_frog
