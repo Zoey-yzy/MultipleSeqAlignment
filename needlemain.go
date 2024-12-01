@@ -31,7 +31,7 @@ type SequenceMatrix map[string]map[string]Sequences
 //to store pairwise alignments themselves after pairwise NW
 
 func main() {
-    gapScore := -2 //hardcoded/read from commandline/RShiny- add to subMatrix
+    gapScore := -8 //hardcoded/read from commandline/RShiny- add to subMatrix
     //for proteins, try values from -7 to -12; DNA/RNA -2 or -3
     //if you're doing simple scoring- 1 for match, -1 for mismatch- do -1 or -2 
     
@@ -40,7 +40,7 @@ func main() {
     fmt.Println("reading scoring matrix")
     seqType := "Protein"
     fmt.Println("working with", seqType)
-	filename := "Durand.csv"
+	filename := "BLOSUM62.csv"
     subMatrix, err := ReadScoringMatrix(seqType, filename, gapScore) //subMatrix contains the reference scoring matrix
     if err != nil {
         fmt.Println("Error:", err)
@@ -52,7 +52,7 @@ func main() {
 
     //reading sequences
     fmt.Println("reading sequences")
-    folderName := "alignmenttestDurand"
+    folderName := "peptidehormones"
     seqs, err := ReadFASTAInput(seqType, folderName) //seqs is a Sequences object
     if err != nil {
         fmt.Println("Error:", err)
@@ -91,7 +91,7 @@ func main() {
             alignedTwo, score := NeedlemanWunsch(seqs[i:i+1], seqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
             PrintSequencesList(alignedTwo)
             fmt.Println("alignment score is", score)
-            distanceMatrix[i][j] = score*-1
+            distanceMatrix[i][j] = score
             seqMatrix[i][j] = alignedTwo
             // distanceMatrix.UpdateDistMatrix(seqs[i].info, seqs[j].info, score)
             // innerMap := make(map[string]int)
@@ -105,6 +105,19 @@ func main() {
             // seqMatrix[seqs[i].info][seqs[j].info] = alignedTwo
         }
     }
+
+    //we can clean this later- but take distanceMatrix and convert to [][]float64
+    diffMatrix := make([][]float64, len(seqs))
+    for i := 0; i < len(seqs); i++ {
+        diffMatrix[i] = make([]float64, len(seqs))
+        for j := 0; j < len(seqs); j++ {
+            diffMatrix[i][j] = float64(-1*distanceMatrix[i][j])
+        }
+    }
+
+    guideTree := NJ(diffMatrix, seqMatrix, seqs, subMatrix)
+    // fmt.Println(guideTree[0].sequence)
+    PrintSequencesList(guideTree[len(guideTree)-1].sequence)
 
     // seq1 :=  "MSLTAKDKSVVKAFWGKISGKADVVGAEALGRVLTAYPQTKTYFSHWADLSPGSGPVKKHGGIIMGAIGKAVGLMDDLVGGMSALSDLHAFNLRVDPGNFKILSHNILVTLAIHFPSDFTPEVHIAVDKFLAVVSAALADKYR"[:20] //ykiss_Rainbow_trou
     // seq2 := "MHLTADDKKHIKAIWPSVAAHGDKYGGEALHRMFMCAPKTKTYFPDFDFSEHSKHILAHGKKVSDALNEACNHLDNIAGCLSKLSDLHAYDLRVDPGNFPLLAHQILVVVAIHFPKQFDPATHKALDKFLVSVSNVLTSKYR"[:20] //Xenopus_tropicalis_Western_clawed_frog
