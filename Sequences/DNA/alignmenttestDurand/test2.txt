@@ -1,0 +1,6 @@
+>seq1
+ACTCAT
+>seq2
+AGTCAT
+>seq3
+ACGTCCT

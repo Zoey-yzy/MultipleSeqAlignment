@@ -31,7 +31,7 @@ type SequenceMatrix map[string]map[string]Sequences
 //to store pairwise alignments themselves after pairwise NW
 
 func main() {
-    gapScore := -1 //hardcoded/read from commandline/RShiny- add to subMatrix
+    gapScore := -2 //hardcoded/read from commandline/RShiny- add to subMatrix
     //for proteins, try values from -7 to -12; DNA/RNA -2 or -3
     //if you're doing simple scoring- 1 for match, -1 for mismatch- do -1 or -2 
     
@@ -40,7 +40,7 @@ func main() {
     fmt.Println("reading scoring matrix")
     seqType := "Protein"
     fmt.Println("working with", seqType)
-	filename := "BLOSUM62.csv"
+	filename := "Durand.csv"
     subMatrix, err := ReadScoringMatrix(seqType, filename, gapScore) //subMatrix contains the reference scoring matrix
     if err != nil {
         fmt.Println("Error:", err)
@@ -52,7 +52,7 @@ func main() {
 
     //reading sequences
     fmt.Println("reading sequences")
-    folderName := "adrenomedullin"
+    folderName := "alignmenttestDurand"
     seqs, err := ReadFASTAInput(seqType, folderName) //seqs is a Sequences object
     if err != nil {
         fmt.Println("Error:", err)
@@ -65,11 +65,17 @@ func main() {
         fmt.Println(seq.info, seq.sequence)
     }
 
-    // //to test the alignments- use alignmenttest2 or alignmenttest folders, either in DNA or Protein
+    // //to test the alignments- use foldername alignmenttest2 or alignmenttest, either in DNA or Protein
     // seqStack, score := NeedlemanWunsch(seqs[0:3], seqs[3:6], subMatrix)
     // PrintSequencesList(seqStack)
     // fmt.Println("score is", score)
-    // //has out of bounds error
+
+    // //to test the alignments of alignment to sequence- use foldername alignmenttestDurand, either in DNA or Protein
+    // //use a scoring matrix of mismatch = -3, gap = -2, match = 0- filename Durand
+    // // compare against the durand sumofpairs slides
+    // seqStack, score := NeedlemanWunsch(seqs[0:2], seqs[2:3], subMatrix)
+    // PrintSequencesList(seqStack)
+    // fmt.Println("score is", score)
 
     //code for multiple NWs on multiple sequences
     // var distanceMatrix Matrix 
