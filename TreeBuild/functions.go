@@ -1,52 +1,44 @@
 package main 
 // tree construction using neighbor joining method
 import(
-	//"strconv"
+	
+	"strconv"
 )
-
 type Tree []*Node
-
 type Node struct{
 	neighbors []*Node  
-	sequence Sequences //is a slice of Sequence objects
+	sequence string
 	distance float64 
 }
-
 // high level function of neighbor joining method
-func NJ(mtx [][]float64, seqMatrix [][]Sequences, sequences Sequences, subMatrix Matrix)Tree{ //should be the original set of input Sequences
+func NJ(mtx [][]float64, sequences []string)Tree{
 	tree := InitializeTree(sequences)
 	num := len(sequences)
-	clusters := tree.InitializeClusters() //clusters- a slice of pointers to Node objects
-	for p := num; p < 2*num - 1; p++ { //so you start with the first internal node in clusters
+	clusters := tree.InitializeClusters()
+	for p:=num;p<2*num-1;p++{
 		// in the last interation when the matrix size is 2, then we just connect the two node
 		// serve the second last node as the root 
 		if len(mtx) == 2{
-			tree[p].distance = mtx[0][1] / 2.0
 			tree[p].neighbors = append(tree[p].neighbors, clusters[0])
 			tree[p].neighbors = append(tree[p].neighbors, clusters[1])
-			//tree[p].sequence = seqMatrix[0][1]
-			tree[p].sequence, _ = NeedlemanWunsch(clusters[0].sequence, clusters[1].sequence, subMatrix)
+			tree[p].neighbors[0].distance = mtx[0][1] / 2.0
+			tree[p].neighbors[1].distance = mtx[0][1] / 2.0
 		}else{
-			row, col := FindMinDist(mtx) //the indices of this should be the same corresponding to the respective Sequence in Sequences object
+			row, col := FindMinDist(mtx)
 			tree[p].neighbors = append(tree[p].neighbors, clusters[row])
 			tree[p].neighbors = append(tree[p].neighbors, clusters[col])
 			tree[p].neighbors[0].distance = CalcDist(mtx, row, col)
 			tree[p].neighbors[1].distance = CalcDist(mtx, col, row)
-			//if the new neighbors/children have a sequences of length 1, then we already got the alignment when we built the distance matrix, so look it up
-			if len(clusters[row].sequence) == 1 && len(clusters[col].sequence) == 1 { 
-				tree[p].sequence = seqMatrix[row][col]
-			} else { //you need to get the alignment
-				tree[p].sequence, _ = NeedlemanWunsch(clusters[row].sequence, clusters[col].sequence, subMatrix)
-			}
-
 			// tree[p].sequence = TraceBackSeq(tree[p].neighbor1, tree[p].neighbor2) // need to call function in needleman
 			
 			// first, add a row and column corresponding to new cluster
+			
 			mtx = AddRowCol(row, col, mtx)
 			mtx = DeleteRowCol(mtx, row, col)
 
 			// finally, we clean up clusters
 			//add current node to end of our clusters
+			
 			clusters = append(clusters, tree[p])
 			clusters = DeleteClusters(clusters, row, col)
 		}
@@ -56,7 +48,6 @@ func NJ(mtx [][]float64, seqMatrix [][]Sequences, sequences Sequences, subMatrix
 }
 
 // Find the smallest distance after adjust
-//returns the row and col indices in the matrix of the minimum value
 func FindMinDist(mtx [][]float64)(int, int){
 	numRows := len(mtx)
 	if numRows < 3{
@@ -120,7 +111,7 @@ func AdjustMatrix(mtx [][]float64)[][]float64{
 	return AdjMatrix 
 }
 
-// Calculate the distance between the two children and their parent
+// Calculate the distance between the two nodes and their common neighbor, 
 func CalcDist(mtx [][]float64, idx1, idx2 int)float64{
 	divergence := CalcDivergence(mtx)
 	div1 := divergence[idx1]
@@ -187,7 +178,8 @@ func DeleteClusters(clusters []*Node, row, col int)[]*Node{
 
 // Initialize a tree with leaves representing sequences
 // we leave space for parent nodes that would be added later
-func InitializeTree(sequences Sequences)Tree{
+
+func InitializeTree(sequences []string)Tree{
 	var tree Tree 
 	num := len(sequences)
 	tree = make([]*Node, 2*num-1) 
@@ -196,10 +188,9 @@ func InitializeTree(sequences Sequences)Tree{
 		var node Node
 		node.neighbors = make([]*Node,0)
 		if i < num {
-			node.sequence = sequences[i:i+1] //needs to be a slice of Sequences of length 1 in leaves?
+			node.sequence = sequences[i]
 		}else{
-			// node.sequence = "aligned sequence" + strconv.Itoa(i-num)
-			node.sequence = make(Sequences, 0) //this works right?
+			node.sequence = "aligned sequence" + strconv.Itoa(i-num)
 		}
 		tree[i] = &node
 	}
@@ -207,9 +198,12 @@ func InitializeTree(sequences Sequences)Tree{
 }
 
 // Initialize clusters of the sequences, which are the leaves of the tree
+
 func (tree Tree) InitializeClusters() []*Node {
+
 	// the tree has 2n-1 total nodes, given the number of leaves is n
 	// want the first n nodes of the tree which are leaves
+
 	numNodes := len(tree)
 	numLeaves := (numNodes + 1) / 2
 
@@ -221,7 +215,6 @@ func (tree Tree) InitializeClusters() []*Node {
 
 	return clusters
 }
-
 func IstheSame(mtx1,mtx2 [][]float64)bool{
 	if len(mtx1) != len(mtx2) || len(mtx1[0]) != len(mtx2[0]){
 		panic("unmatched length of the two matrices")
