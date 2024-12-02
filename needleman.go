@@ -8,6 +8,41 @@ type  Move struct {
     value float64
 }
 
+//the function to do Needleman repeatedly- every sequence against every other sequence, to create a distance matrix
+//input: inputSeqs Sequences, subMatrix Matrix
+//output: a distanceMatrix Matrix and seqMatrix SequenceMatrix
+func NWEverybody(inputSeqs Sequences, subMatrix Matrix) ([][]int, [][]Sequences){
+    //code for multiple NWs on multiple sequences - this should be modularized
+    // var distanceMatrix Matrix 
+    // distanceMatrix := make(Matrix) 
+    distanceMatrix := make([][]int, len(inputSeqs)) //hold int scores- results of pairwise alignments
+    seqMatrix := make([][]Sequences, len(inputSeqs)) //hold Sequences objects of length 2- no need to redo alignments when filling guide tree nodes, just fill from here
+    // var seqMatrix SequenceMatrix 
+    for i := 0; i < len(inputSeqs); i++ {
+        distanceMatrix[i] = make([]int, len(inputSeqs))
+        seqMatrix[i] = make([]Sequences, len(inputSeqs))
+        for j := i+1; j < len(inputSeqs); j++ {
+            // fmt.Println("printing", inputSeqs[i:i+1], inputSeqs[j:j+1])
+            alignedTwo, score := NeedlemanWunsch(inputSeqs[i:i+1], inputSeqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
+            PrintSequencesList(alignedTwo)
+            fmt.Println("alignment score is", score)
+            distanceMatrix[i][j] = score
+            seqMatrix[i][j] = alignedTwo
+            // distanceMatrix.UpdateDistMatrix(inputSeqs[i].info, inputSeqs[j].info, score)
+            // innerMap := make(map[string]int)
+            // fmt.Println("score passed into update function is", score)
+            // innerMap[inputSeqs[j].info] = score
+            // distanceMatrix[inputSeqs[i].info] = innerMap //why is the value 0?
+            // fmt.Println("distance matrix looks like: ")
+            fmt.Println(distanceMatrix)
+            // PrintSubMatrix(distanceMatrix)
+            // distanceMatrix[inputSeqs[i].info][inputSeqs[j].info] = score
+            // seqMatrix[inputSeqs[i].info][inputSeqs[j].info] = alignedTwo
+        }
+    }
+    return distanceMatrix, seqMatrix
+}
+
 //this is the highest-level needleman algorithm which will be used to align two sequences or two sets of sequences
 //Input: the two sequences- rowSeqs and colSeqs, a scoring matrix subMatrix type Matrix
 //Output: a combined, aligned Sequences object, as well as the aligment score
@@ -41,9 +76,9 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
     //fmt.Println("matrix:",matrix)
     //fmt.Println("scoreMap:",scoreMap)
     //PrettyPrintMatrix(traceBackMatrix)
-    for i := 0; i < len(matrix); i++ {
-        fmt.Println(matrix[i])
-    }
+    // for i := 0; i < len(matrix); i++ {
+    //     fmt.Println(matrix[i])
+    // }
     alignedSeqs := GetAlignments(rowSeqs, colSeqs, traceBackMatrix)
     
     alignmentScore := matrix[rowLen-1][colLen-1] //the score taken from bottom corner is the alignment score- use this to build difference matrix
@@ -277,6 +312,7 @@ func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd
     // leftScore := matrix[i][j-1] + scoreMap["gap"]["gap"]
     // upScore := matrix[i-1][j] + scoreMap["gap"]["gap"]
     //in our algorithm, penalties are negative so get direction in max
+    // max := ComputeNWMax([3]int{diagScore, upScore, leftScore,})
     max := ComputeNWMax([3]int{upScore, diagScore, leftScore,})
     // var move Move
     // move.value = max

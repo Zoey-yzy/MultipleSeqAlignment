@@ -6,6 +6,36 @@ Then probably 1994 CLUSTALW paper - https://www.ncbi.nlm.nih.gov/pmc/articles/PM
 (1970 Needleman-Wunsch- https://www.sciencedirect.com/science/article/pii/0022283670900574?via%3Dihub) 
 Use Multiple sequence alignment modeling: methods and applications | Briefings in Bioinformatics | Oxford Academic to find additional algorithms
 
+<u>Input arguments are formatted as:</u>
+./MultipleSeqAlignment seqType algType filename gapScore folderName
+
+<u>seqType</u>: the type of sequence being aligned
+either "DNA" or "Protein"- case-sensitive
+
+<u>algType</u>: the method used to construct the guide tree
+either "alignment"- pairwise Needleman-Wunsch of each sequence with every other to obtain an alignment score
+or "identity"- calculated using sequence identity
+
+<u>filename</u>: string indicating the name of the .csv file to read a scoring lookup matrix from
+if seqType = "DNA", list of files is under "ScoringMatrices/DNA"
+if seqType = "Protein", list of files is under "ScoringMatrices/Protein"- e.g. "BLOSUM62.csv"
+
+<u>gapScore</u>: the linear gap penalty to use
+for proteins, try gapScore values from -7 to -12; DNA/RNA -2 or -3
+if you're doing simple scoring- (1 for match, -1 for mismatch)- do gapScore =  -1 or -2 
+
+<u>folderName</u>: string indicating the name of the folder to access pre-loaded FASTA sequence files
+if seqType = "DNA", list of files is under "Sequences/DNA"
+    mostly tests, we don't have anything here really
+
+if seqType = "Protein", list of files is under "Sequences/Protein"
+    contains tests and some real sequences:
+    "adrenomedullin"- amino acid sequences of human adrenomedullin and adrenomedullin-2 - length ~30 aa
+    "peptidehormones"- amino acid sequences of 9 different glucagon/secretin- related peptide hormones - length ~30-40 aa
+    "enkephalins"- amino acid sequences of human Met- and Leu-enkephalin - length 5 aa
+    "opioidpeptides"- amino acid sequences of 16 different opioid receptor peptide ligands - length 3-7 aa
+
+
 Scoring/substitution matrix sources:
 DNA: https://www.stat.berkeley.edu/~hhuang/STAT141/STATC141-lecture7.pdf
 i remember another set of slides but can't find

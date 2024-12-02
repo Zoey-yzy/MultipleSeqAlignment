@@ -30,17 +30,34 @@ type Sequences []Sequence
 type SequenceMatrix map[string]map[string]Sequences
 //to store pairwise alignments themselves after pairwise NW
 
-func main() {
-    gapScore := -8 //hardcoded/read from commandline/RShiny- add to subMatrix
+func main() { //commandline taken from RShiny
+    // ./MultipleSeqAlignment Protein alignment BLOSUM62.csv -8 peptidehormones
+    
+    if len(os.Args) != 6 {
+        panic("error: incorrect number of inputs buddy")
+    }
+
+    seqType := os.Args[1]
+
+    algType := os.Args[2]
+    fmt.Println(algType)
+
+    filename := os.Args[3]
+
+    gapScore, err := strconv.Atoi(os.Args[4])
+
+    folderName := os.Args[5]
+    
+    // gapScore := -2 //hardcoded/read from commandline/RShiny- add to subMatrix
     //for proteins, try values from -7 to -12; DNA/RNA -2 or -3
     //if you're doing simple scoring- 1 for match, -1 for mismatch- do -1 or -2 
     
     //later change this to be doable through RShiny- folder browsing or dropdown menu
     //reading scoring matrix
     fmt.Println("reading scoring matrix")
-    seqType := "Protein"
+    // seqType := "Protein"
     fmt.Println("working with", seqType)
-	filename := "BLOSUM62.csv"
+	// filename := "Simple.csv"
     subMatrix, err := ReadScoringMatrix(seqType, filename, gapScore) //subMatrix contains the reference scoring matrix
     if err != nil {
         fmt.Println("Error:", err)
@@ -52,70 +69,44 @@ func main() {
 
     //reading sequences
     fmt.Println("reading sequences")
-    folderName := "peptidehormones"
-    seqs, err := ReadFASTAInput(seqType, folderName) //seqs is a Sequences object
+    // folderName := "peptidehormones"
+    inputSeqs, err := ReadFASTAInput(seqType, folderName) //inputSeqs is a Sequences object
     if err != nil {
         fmt.Println("Error:", err)
         return
     }
 
-    fmt.Println("printing final sequences, length", len(seqs))
-    for _, seq := range seqs {
+    fmt.Println("printing final sequences, length", len(inputSeqs))
+    for _, seq := range inputSeqs {
         //fmt.Printf("Info: %s, Sequence: %s\n", seq.info, seq.sequence)
         fmt.Println(seq.info, seq.sequence)
     }
 
+    //START WITH THESE TWO GUYS TO DO TEST CASES
+
     // //to test the alignments- use foldername alignmenttest2 or alignmenttest, either in DNA or Protein
-    // seqStack, score := NeedlemanWunsch(seqs[0:3], seqs[3:6], subMatrix)
+    // seqStack, score := NeedlemanWunsch(inputSeqs[0:3], inputSeqs[3:6], subMatrix)
     // PrintSequencesList(seqStack)
     // fmt.Println("score is", score)
 
     // //to test the alignments of alignment to sequence- use foldername alignmenttestDurand, either in DNA or Protein
     // //use a scoring matrix of mismatch = -3, gap = -2, match = 0- filename Durand
     // // compare against the durand sumofpairs slides
-    // seqStack, score := NeedlemanWunsch(seqs[0:2], seqs[2:3], subMatrix)
+    // seqStack, score := NeedlemanWunsch(inputSeqs[0:2], inputSeqs[2:3], subMatrix)
     // PrintSequencesList(seqStack)
     // fmt.Println("score is", score)
-
-    //code for multiple NWs on multiple sequences
-    // var distanceMatrix Matrix 
-    // distanceMatrix := make(Matrix) 
-    distanceMatrix := make([][]int, len(seqs)) //hold int scores- results of pairwise alignments
-    seqMatrix := make([][]Sequences, len(seqs)) //hold Sequences objects of length 2- no need to redo alignments when filling guide tree nodes, just fill from here
-    // var seqMatrix SequenceMatrix 
-    for i := 0; i < len(seqs); i++ {
-        distanceMatrix[i] = make([]int, len(seqs))
-        seqMatrix[i] = make([]Sequences, len(seqs))
-        for j := i+1; j < len(seqs); j++ {
-            // fmt.Println("printing", seqs[i:i+1], seqs[j:j+1])
-            alignedTwo, score := NeedlemanWunsch(seqs[i:i+1], seqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
-            PrintSequencesList(alignedTwo)
-            fmt.Println("alignment score is", score)
-            distanceMatrix[i][j] = score
-            seqMatrix[i][j] = alignedTwo
-            // distanceMatrix.UpdateDistMatrix(seqs[i].info, seqs[j].info, score)
-            // innerMap := make(map[string]int)
-            // fmt.Println("score passed into update function is", score)
-            // innerMap[seqs[j].info] = score
-            // distanceMatrix[seqs[i].info] = innerMap //why is the value 0?
-            // fmt.Println("distance matrix looks like: ")
-            fmt.Println(distanceMatrix)
-            // PrintSubMatrix(distanceMatrix)
-            // distanceMatrix[seqs[i].info][seqs[j].info] = score
-            // seqMatrix[seqs[i].info][seqs[j].info] = alignedTwo
-        }
-    }
-
-    //we can clean this later- but take distanceMatrix and convert to [][]float64
-    diffMatrix := make([][]float64, len(seqs))
-    for i := 0; i < len(seqs); i++ {
-        diffMatrix[i] = make([]float64, len(seqs))
-        for j := 0; j < len(seqs); j++ {
-            diffMatrix[i][j] = float64(-1*distanceMatrix[i][j])
-        }
-    }
-
-    guideTree := NJ(diffMatrix, seqMatrix, seqs, subMatrix)
+       
+    distanceMatrix := make([][]int, len(inputSeqs)) //hold int scores- results of pairwise alignments
+    seqMatrix := make([][]Sequences, len(inputSeqs))
+    diffMatrix := make([][]float64, len(inputSeqs))
+    if algType == "alignment" {
+        distanceMatrix, seqMatrix = NWEverybody(inputSeqs, subMatrix)
+        diffMatrix = MatrixToFloats(distanceMatrix)
+    } else { //"identity"
+        fmt.Println("somebody who understands, if you enter 'identity' as the os.Args[2], then don't do multiple pairwise needleman alignments and build the distance matrix using sequence identity instead")
+    }  
+    
+    guideTree := NJ(diffMatrix, seqMatrix, inputSeqs, subMatrix)
     // fmt.Println(guideTree[0].sequence)
     PrintSequencesList(guideTree[len(guideTree)-1].sequence)
 
@@ -129,6 +120,18 @@ func main() {
     // fmt.Println("Score:",alignmentScore)
     // distanceMap := ConstructDistanceMap([]string{seq1,seq2}) //what does this do? we only have two sequences?
     // fmt.Println("distanceMap:",distanceMap)
+}
+
+func MatrixToFloats(distanceMatrix [][]int) [][]float64{
+    //we can clean this later- but take distanceMatrix and convert to [][]float64
+    diffMatrix := make([][]float64, len(distanceMatrix))
+    for i := 0; i < len(distanceMatrix); i++ {
+        diffMatrix[i] = make([]float64, len(distanceMatrix))
+        for j := 0; j < len(distanceMatrix); j++ {
+            diffMatrix[i][j] = float64(-1*distanceMatrix[i][j])
+        }
+    }
+    return diffMatrix
 }
 
 // ReadScoringMatrix reads in rows, columns, and values from a .csv file and stores them in a Matrix object
@@ -281,13 +284,13 @@ func PrintSequencesList(sequences Sequences) {
 }
 
 // func main() {
-//     seqs, err := ReadFASTAInput("exampleType", "exampleFolder")
+//     inputSeqs, err := ReadFASTAInput("exampleType", "exampleFolder")
 //     if err != nil {
 //         fmt.Println("Error:", err)
 //         return
 //     }
 
-//     for _, seq := range seqs {
+//     for _, seq := range inputSeqs {
 //         fmt.Printf("Info: %s, Sequence: %s\n", seq.info, seq.sequence)
 //     }
 // }
