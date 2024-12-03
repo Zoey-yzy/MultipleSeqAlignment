@@ -130,6 +130,37 @@ func main() { //commandline taken from RShiny
     // fmt.Println("distanceMap:",distanceMap)
 }
 
+func ConvertTreeToNewick(tree Tree, root *Node) string {
+	visited := make(map[*Node]bool)
+	return buildNewickString(root, visited) + ";"
+}
+
+// Recursive helper to build the Newick string
+func buildNewickString(node *Node, visited map[*Node]bool) string {
+	visited[node] = true
+	var parts []string
+	for _, neighbor := range node.neighbors {
+		if !visited[neighbor] {
+			subtree := buildNewickString(neighbor, visited)
+			branch := subtree + ":" + strconv.FormatFloat(neighbor.distance, 'f', 6, 64)
+			parts = append(parts, branch)
+		}
+	}
+	if len(parts) > 0 {
+		return "(" + strings.Join(parts, ",") + ")" + node.sequence
+	}
+	return node.sequence
+}
+func ExportNewickToFile(newick string, filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = file.WriteString(newick)
+	return err
+}
+
 func MatrixToFloats(distanceMatrix [][]int) [][]float64{
     //we can clean this later- but take distanceMatrix and convert to [][]float64
     diffMatrix := make([][]float64, len(distanceMatrix))
