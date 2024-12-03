@@ -73,12 +73,12 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
     //should change this part to take in a "scoring lookup table" to get match/mismatch scores from a .csv file in main.go or io.go
     //i have a scorematrix now
     matrix, traceBackMatrix := ComputeNWScores(rowSeqs, colSeqs, subMatrix)
-    //fmt.Println("matrix:",matrix)
-    //fmt.Println("scoreMap:",scoreMap)
-    //PrettyPrintMatrix(traceBackMatrix)
-    // for i := 0; i < len(matrix); i++ {
-    //     fmt.Println(matrix[i])
-    // }
+    // fmt.Println("matrix:",matrix)
+    // fmt.Println("scoreMap:",scoreMap)
+    PrettyPrintMatrix(traceBackMatrix)
+    for i := 0; i < len(matrix); i++ {
+        fmt.Println(matrix[i])
+    }
     alignedSeqs := GetAlignments(rowSeqs, colSeqs, traceBackMatrix)
     
     alignmentScore := matrix[rowLen-1][colLen-1] //the score taken from bottom corner is the alignment score- use this to build difference matrix
