@@ -108,6 +108,14 @@ func main() { //commandline taken from RShiny
     
     guideTree := NJ(diffMatrix, seqMatrix, inputSeqs, subMatrix)
     // fmt.Println(guideTree[0].sequence)
+    root := guideTree[len(guideTree)-1]
+    newick := ConvertTreeToNewick(guideTree, root)
+	filename := "tree.newick"
+	if err := ExportNewickToFile(newick, filename); err != nil {
+		fmt.Println("Error exporting Newick:", err)
+	} else {
+		fmt.Println("Newick exported to", filename)
+	}
     PrintSequencesList(guideTree[len(guideTree)-1].sequence)
 
     // seq1 :=  "MSLTAKDKSVVKAFWGKISGKADVVGAEALGRVLTAYPQTKTYFSHWADLSPGSGPVKKHGGIIMGAIGKAVGLMDDLVGGMSALSDLHAFNLRVDPGNFKILSHNILVTLAIHFPSDFTPEVHIAVDKFLAVVSAALADKYR"[:20] //ykiss_Rainbow_trou
