@@ -110,11 +110,11 @@ func main() { //commandline taken from RShiny
     // fmt.Println(guideTree[0].sequence)
     root := guideTree[len(guideTree)-1]
     newick := ConvertTreeToNewick(guideTree, root)
-	filename := "tree.newick"
-	if err := ExportNewickToFile(newick, filename); err != nil {
+	fileName := "tree.newick"
+	if err := ExportNewickToFile(newick, fileName); err != nil {
 		fmt.Println("Error exporting Newick:", err)
 	} else {
-		fmt.Println("Newick exported to", filename)
+		fmt.Println("Newick exported to", fileName)
 	}
     PrintSequencesList(guideTree[len(guideTree)-1].sequence)
 

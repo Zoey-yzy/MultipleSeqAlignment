@@ -1,7 +1,7 @@
 library(tidyverse)
 library(ape)
 
-tree <- ape::read.tree("/Users/zoey/go/src/project/tree.newick")
+tree <- ape::read.tree("c:\Users\William\Documents\GitHub\MultipleSeqAlignment\tree.newick")
 plot(tree)
 edgelabels(
   round(tree$edge.length, 2), # Round edge lengths for cleaner display
