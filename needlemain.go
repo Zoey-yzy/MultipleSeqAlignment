@@ -338,6 +338,7 @@ func readFASTAFile(filePath string) (Sequences, error) {
 }
 
 func PrintSequencesList(sequences Sequences) {
+    // fmt.Println("printing root")
     for i := 0; i < len(sequences); i++ {
         fmt.Println(sequences[i].sequence)
     }

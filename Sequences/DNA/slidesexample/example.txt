@@ -1,0 +1,10 @@
+>seq1
+GACGA
+>seq2
+CACATA
+>seq3
+CAGCTA
+>seq4
+GCGA
+>seq5
+TACGA

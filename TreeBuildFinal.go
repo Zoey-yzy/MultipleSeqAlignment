@@ -2,6 +2,7 @@ package main
 // tree construction using neighbor joining method
 import(
 	//"strconv"
+	"fmt"
 )
 
 type Tree []*Node
@@ -33,11 +34,12 @@ func NJ(mtx [][]float64, seqMatrix [][]Sequences, sequences Sequences, subMatrix
 			tree[p].neighbors[0].distance = CalcDist(mtx, row, col)
 			tree[p].neighbors[1].distance = CalcDist(mtx, col, row)
 			//if the new neighbors/children have a sequences of length 1, then we already got the alignment when we built the distance matrix, so look it up
-			if len(clusters[row].sequence) == 1 && len(clusters[col].sequence) == 1 { 
-				tree[p].sequence = seqMatrix[row][col]
-			} else { //you need to get the alignment
+			// if len(clusters[row].sequence) == 1 && len(clusters[col].sequence) == 1 { 
+				// tree[p].sequence = seqMatrix[row][col]
+			// } else { //you need to get the alignment
 				tree[p].sequence, _ = NeedlemanWunsch(clusters[row].sequence, clusters[col].sequence, subMatrix)
-			}
+			// }
+			fmt.Println(tree[p].sequence)
 
 			// tree[p].sequence = TraceBackSeq(tree[p].neighbor1, tree[p].neighbor2) // need to call function in needleman
 			
