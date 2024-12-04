@@ -135,10 +135,12 @@ func ConvertTreeToNewick(tree Tree, root *Node) string {
 	return buildNewickString(root, visited) + ";"
 }
 
-// Recursive helper to build the Newick string
+// Recursive helper to build the Newick string.
 func buildNewickString(node *Node, visited map[*Node]bool) string {
 	visited[node] = true
 	var parts []string
+
+	// Iterate over neighbors to recursively build Newick string.
 	for _, neighbor := range node.neighbors {
 		if !visited[neighbor] {
 			subtree := buildNewickString(neighbor, visited)
@@ -146,11 +148,30 @@ func buildNewickString(node *Node, visited map[*Node]bool) string {
 			parts = append(parts, branch)
 		}
 	}
+
+	// Extract sequence string from Sequences type as a slice representation.
+	nodeLabel := extractSequenceSliceLabel(node.sequence)
+
+	// Build Newick string for this node.
 	if len(parts) > 0 {
-		return "(" + strings.Join(parts, ",") + ")" + node.sequence
+		return "(" + strings.Join(parts, ",") + ")" + nodeLabel
 	}
-	return node.sequence
+	return nodeLabel
 }
+
+// Extracts a slice representation of a node's sequences.
+func extractSequenceSliceLabel(sequences Sequences) string {
+	if len(sequences) > 0 {
+		var sequenceStrings []string
+		for _, seq := range sequences {
+			sequenceStrings = append(sequenceStrings, seq.sequence)
+		}
+		return "[" + strings.Join(sequenceStrings, ",") + "]" // Join sequences into a slice representation.
+	}
+	return "[]" // Fallback if no sequence is available.
+}
+
+// ExportNewickToFile writes the Newick string to a specified file.
 func ExportNewickToFile(newick string, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
