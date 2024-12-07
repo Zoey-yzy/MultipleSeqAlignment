@@ -29,9 +29,9 @@ func NWEverybody(inputSeqs Sequences, subMatrix Matrix) ([][]int, [][]Sequences)
         // distanceMatrix[i] = make([]int, len(inputSeqs))
         // seqMatrix[i] = make([]Sequences, len(inputSeqs))
         for j := i; j < len(inputSeqs); j++ {
-            if j == i {
-                distanceMatrix[j][i] = 0
-            } else {
+            // if j == i {
+            //     distanceMatrix[j][i] = 0
+            // } else {
                 // fmt.Println("printing", inputSeqs[i:i+1], inputSeqs[j:j+1])
                 // if i >= j {
                 alignedTwo, score := NeedlemanWunsch(inputSeqs[i:i+1], inputSeqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
@@ -54,7 +54,7 @@ func NWEverybody(inputSeqs Sequences, subMatrix Matrix) ([][]int, [][]Sequences)
             // distanceMatrix[inputSeqs[i].info][inputSeqs[j].info] = score
             // seqMatrix[inputSeqs[i].info][inputSeqs[j].info] = alignedTwo
             // }
-            }  
+            // }  
         }
     }
     return distanceMatrix, seqMatrix
@@ -190,7 +190,15 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
             // newSeq2 =  "-"+ newSeq2
             i-- 
         }
-        fmt.Println(newRowSeq[0], newColSeq[0])
+        // fmt.Println("RowSeqs")
+        // for i := 0; i < len(newRowSeq); i++ {
+        //     fmt.Println(newRowSeq[i])
+        // }
+        // fmt.Println("ColSeqs")
+        // for j := 0; j < len(newColSeq); j++ {
+        //     fmt.Println(newColSeq[j])
+        // }
+        // fmt.Println(newRowSeq[0], newColSeq[0])
         direction = traceBackMatrix[i][j]    
     }
 
