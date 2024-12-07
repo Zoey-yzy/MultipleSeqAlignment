@@ -5,16 +5,8 @@ import(
 	"fmt"
 )
 
-type Tree []*Node
-
-type Node struct{
-	neighbors []*Node  
-	sequence Sequences //is a slice of Sequence objects
-	distance float64 
-}
-
 // high level function of neighbor joining method
-func NJ(mtx [][]float64, seqMatrix [][]Sequences, sequences Sequences, subMatrix Matrix)Tree{ //should be the original set of input Sequences
+func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be the original set of input Sequences
 	tree := InitializeTree(sequences)
 	num := len(sequences)
 	clusters := tree.InitializeClusters() //clusters- a slice of pointers to Node objects
