@@ -2,7 +2,7 @@ package main
 // tree construction using neighbor joining method
 import(
 	//"strconv"
-	"fmt"
+	// "fmt"
 )
 
 // high level function of neighbor joining method
@@ -29,9 +29,9 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 			// if len(clusters[row].sequence) == 1 && len(clusters[col].sequence) == 1 { 
 				// tree[p].sequence = seqMatrix[row][col]
 			// } else { //you need to get the alignment
-				tree[p].sequence, _ = NeedlemanWunsch(clusters[row].sequence, clusters[col].sequence, subMatrix)
+			tree[p].sequence, _ = NeedlemanWunsch(clusters[row].sequence, clusters[col].sequence, subMatrix)
 			// }
-			fmt.Println("at this node:", tree[p].sequence)
+			// fmt.Println("at this node:", tree[p].sequence)
 
 			// tree[p].sequence = TraceBackSeq(tree[p].neighbor1, tree[p].neighbor2) // need to call function in needleman
 			
@@ -53,7 +53,7 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 //returns the row and col indices in the matrix of the minimum value
 func FindMinDist(mtx [][]float64)(int, int){
 	numRows := len(mtx)
-	if numRows < 3{
+	if numRows < 3{ //if there are two rows
 		return 0,1
 	}else{
 		AdjMatrix := AdjustMatrix(mtx)

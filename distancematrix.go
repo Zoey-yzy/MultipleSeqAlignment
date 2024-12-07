@@ -24,6 +24,10 @@ func CreateDistanceMatrix(distMethod string, inputSeqs Sequences, subMatrix Matr
 	} else { //if none of the above
 		panic("invalid distance matrix creation type")
 	}
+	fmt.Println("diffMatrix is")
+	for n := 0; n < len(diffMatrix); n++ {
+		fmt.Println(diffMatrix[n])
+	}
 	return diffMatrix  
 }
 
@@ -48,14 +52,14 @@ func NWDistMatrix(inputSeqs Sequences, subMatrix Matrix) [][]int{
         // distanceMatrix[i] = make([]int, len(inputSeqs))
         // seqMatrix[i] = make([]Sequences, len(inputSeqs))
         for j := i; j < len(inputSeqs); j++ {
-            // if j == i {
-            //     distanceMatrix[j][i] = 0
-            // } else {
+            if j == i { //this is janky
+                distanceMatrix[j][i] = 0
+            } else {
                 // fmt.Println("printing", inputSeqs[i:i+1], inputSeqs[j:j+1])
                 // if i >= j {
-                alignedTwo, score := NeedlemanWunsch(inputSeqs[i:i+1], inputSeqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
-                PrintSequencesList(alignedTwo)
-                fmt.Println("alignment score is", score)
+                _, score := NeedlemanWunsch(inputSeqs[i:i+1], inputSeqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
+                // PrintSequencesList(alignedTwo)
+                // fmt.Println("alignment score is", score)
                 distanceMatrix[i][j] = score
                 distanceMatrix[j][i] = score
                 // seqMatrix[i][j] = alignedTwo
@@ -65,15 +69,15 @@ func NWDistMatrix(inputSeqs Sequences, subMatrix Matrix) [][]int{
             // innerMap[inputSeqs[j].info] = score
             // distanceMatrix[inputSeqs[i].info] = innerMap //why is the value 0?
             // fmt.Println("distance matrix looks like: ")
-                fmt.Println("distance matrix is:")
-                for n := 0; n < len(distanceMatrix); n++ {
-                    fmt.Println(distanceMatrix[n])
-                }
+                // fmt.Println("distance matrix is:")
+                // for n := 0; n < len(distanceMatrix); n++ {
+                //     fmt.Println(distanceMatrix[n])
+                // }
             // PrintSubMatrix(distanceMatrix)
             // distanceMatrix[inputSeqs[i].info][inputSeqs[j].info] = score
             // seqMatrix[inputSeqs[i].info][inputSeqs[j].info] = alignedTwo
             // }
-            // }  
+            }  
         }
     }
     return distanceMatrix

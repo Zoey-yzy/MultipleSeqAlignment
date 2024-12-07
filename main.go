@@ -77,10 +77,18 @@ func main() { //commandline taken from RShiny
     // PrintSequencesList(seqStack)
     // fmt.Println("score is", score)
   
-    diffMatrix := CreateDistanceMatrix(distMethod, inputSeqs, subMatrix)
+    // sekwences, alignmentScorr := NeedlemanWunsch(inputSeqs[0:1], inputSeqs[1:2], subMatrix)
+    // PrintSequencesList(sekwences)
+    // fmt.Println("score was", alignmentScorr)
 
+    distMatrix := CreateDistanceMatrix(distMethod, inputSeqs, subMatrix)
+    fmt.Println("distance matrix looks like: ")
+    fmt.Println("distance matrix is:")
+    for n := 0; n < len(distMatrix); n++ {
+        fmt.Println(distMatrix[n])
+    }
     fmt.Println("building tree")
-    guideTree := NJ(diffMatrix, inputSeqs, subMatrix)
+    guideTree := NJ(distMatrix, inputSeqs, subMatrix)
     // fmt.Println(guideTree[0].sequence)
     root := guideTree[len(guideTree)-1]
     newick := ConvertTreeToNewick(guideTree, root)

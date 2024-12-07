@@ -1,4 +1,4 @@
 >seq1
-GCGTA
+GTAA
 >seq2
 GTA

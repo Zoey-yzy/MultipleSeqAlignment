@@ -37,10 +37,10 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
     matrix, traceBackMatrix := ComputeNWScores(rowSeqs, colSeqs, subMatrix)
     // fmt.Println("matrix:",matrix)
     // fmt.Println("scoreMap:",scoreMap)
-    PrettyPrintMatrix(traceBackMatrix)
-    for i := 0; i < len(matrix); i++ {
-        fmt.Println(matrix[i])
-    }
+    // PrettyPrintMatrix(traceBackMatrix)
+    // for i := 0; i < len(matrix); i++ {
+    //     fmt.Println(matrix[i])
+    // }
     alignedSeqs := GetAlignments(rowSeqs, colSeqs, traceBackMatrix)
     
     alignmentScore := matrix[rowLen-1][colLen-1] //the score taken from bottom corner is the alignment score- use this to build difference matrix
@@ -64,8 +64,8 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
 func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Sequences{
     n1 := len(rowSeqs[0].sequence) //rowSeq might be diff length from colSeq but all seqs in each are the same length
     n2 := len(colSeqs[0].sequence)//no +1 because gap symbol already added to 1st position- sequence[0] is always "-" which you can use
-    fmt.Println("length of rowSeq is", len(rowSeqs[0].sequence))
-    fmt.Println("length of colSeq is", len(colSeqs[0].sequence))
+    // fmt.Println("length of rowSeq is", len(rowSeqs[0].sequence))
+    // fmt.Println("length of colSeq is", len(colSeqs[0].sequence))
     //make a slice of sequences (strings) for rowSeq, colSeq, equal to how many there are, set them each to ""
     newRowSeqs := make([]Sequence, len(rowSeqs))
     newColSeqs := make([]Sequence, len(colSeqs)) //make new Sequences objects
@@ -277,15 +277,20 @@ func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd
     up (i,j-1) and diagonal (i-1,j-1)
     */
     var direction string
-    upScore := matrix[rowInd-1][colInd] + SumOfPairs(rowSeqs, colSeqs, 0, colInd, subMatrix) //0 is always gap
+    // fmt.Println("current rowSeqs letter is", string(rowSeqs[0].sequence[rowInd]), rowInd, "current colSeqs letter is", string(colSeqs[0].sequence[colInd]), colInd)
+    upScore := matrix[rowInd-1][colInd] + SumOfPairs(rowSeqs, colSeqs, rowInd, 0, subMatrix) //0 is always gap
     diagScore := matrix[rowInd-1][colInd-1] + SumOfPairs(rowSeqs, colSeqs, rowInd, colInd, subMatrix)
-    leftScore := matrix[rowInd][colInd-1] + SumOfPairs(rowSeqs, colSeqs, rowInd, 0, subMatrix) //0 is always gap
+    leftScore := matrix[rowInd][colInd-1] + SumOfPairs(rowSeqs, colSeqs, 0, colInd, subMatrix) //0 is always gap
     // diagScore := matrix[i-1][j-1] + scoreMap[c1][c2]
     // leftScore := matrix[i][j-1] + scoreMap["gap"]["gap"]
     // upScore := matrix[i-1][j] + scoreMap["gap"]["gap"]
     //in our algorithm, penalties are negative so get direction in max
-    // max := ComputeNWMax([3]int{diagScore, upScore, leftScore,})
-    max := ComputeNWMax([3]int{upScore, diagScore, leftScore,})
+    // max := ComputeNWMax([3]int{diagScore, upScore, leftScore,})  
+    neighborVals := [3]int{diagScore, leftScore, upScore,}
+    max := ComputeNWMax(neighborVals)
+    // if rowInd == 4 && colInd == 3 {
+    //     fmt.Println("max of ", neighborVals, "is ", max)
+    // }
     // var move Move
     // move.value = max
     // checking which move gives me the max score
@@ -297,6 +302,9 @@ func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd
     } else if max == upScore{
         direction =  "UP"
     }
+    // if rowInd == 4 && colInd == 3 {
+    //     fmt.Println("goes", direction)
+    // }
      
     return max, direction
 }
