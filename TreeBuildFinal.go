@@ -39,7 +39,7 @@ func NJ(mtx [][]float64, seqMatrix [][]Sequences, sequences Sequences, subMatrix
 			// } else { //you need to get the alignment
 				tree[p].sequence, _ = NeedlemanWunsch(clusters[row].sequence, clusters[col].sequence, subMatrix)
 			// }
-			fmt.Println(tree[p].sequence)
+			fmt.Println("at this node:", tree[p].sequence)
 
 			// tree[p].sequence = TraceBackSeq(tree[p].neighbor1, tree[p].neighbor2) // need to call function in needleman
 			

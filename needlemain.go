@@ -76,7 +76,7 @@ func main() { //commandline taken from RShiny
         return
     }
 
-    fmt.Println("printing final sequences, length", len(inputSeqs))
+    fmt.Println("printing final sequences, number of sequences is", len(inputSeqs))
     for _, seq := range inputSeqs {
         //fmt.Printf("Info: %s, Sequence: %s\n", seq.info, seq.sequence)
         fmt.Println(seq.info, seq.sequence)
@@ -106,6 +106,8 @@ func main() { //commandline taken from RShiny
         fmt.Println("somebody who understands, if you enter 'identity' as the os.Args[2], then don't do multiple pairwise needleman alignments and build the distance matrix using sequence identity instead")
     }  
     
+
+    fmt.Println("building tree")
     guideTree := NJ(diffMatrix, seqMatrix, inputSeqs, subMatrix)
     // fmt.Println(guideTree[0].sequence)
     root := guideTree[len(guideTree)-1]

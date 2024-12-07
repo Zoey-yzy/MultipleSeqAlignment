@@ -15,29 +15,46 @@ func NWEverybody(inputSeqs Sequences, subMatrix Matrix) ([][]int, [][]Sequences)
     //code for multiple NWs on multiple sequences - this should be modularized
     // var distanceMatrix Matrix 
     // distanceMatrix := make(Matrix) 
+    fmt.Println("starting to needleman everybody", inputSeqs)
     distanceMatrix := make([][]int, len(inputSeqs)) //hold int scores- results of pairwise alignments
+    for i := 0; i < len(distanceMatrix); i++ {
+        distanceMatrix[i] = make([]int, len(inputSeqs))
+    }
     seqMatrix := make([][]Sequences, len(inputSeqs)) //hold Sequences objects of length 2- no need to redo alignments when filling guide tree nodes, just fill from here
+    for i := 0; i < len(seqMatrix); i++ {
+        seqMatrix[i] = make([]Sequences, len(inputSeqs))
+    }
     // var seqMatrix SequenceMatrix 
     for i := 0; i < len(inputSeqs); i++ {
-        distanceMatrix[i] = make([]int, len(inputSeqs))
-        seqMatrix[i] = make([]Sequences, len(inputSeqs))
-        for j := i+1; j < len(inputSeqs); j++ {
-            // fmt.Println("printing", inputSeqs[i:i+1], inputSeqs[j:j+1])
-            alignedTwo, score := NeedlemanWunsch(inputSeqs[i:i+1], inputSeqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
-            PrintSequencesList(alignedTwo)
-            fmt.Println("alignment score is", score)
-            distanceMatrix[i][j] = score
-            seqMatrix[i][j] = alignedTwo
+        // distanceMatrix[i] = make([]int, len(inputSeqs))
+        // seqMatrix[i] = make([]Sequences, len(inputSeqs))
+        for j := i; j < len(inputSeqs); j++ {
+            if j == i {
+                distanceMatrix[j][i] = 0
+            } else {
+                // fmt.Println("printing", inputSeqs[i:i+1], inputSeqs[j:j+1])
+                // if i >= j {
+                alignedTwo, score := NeedlemanWunsch(inputSeqs[i:i+1], inputSeqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
+                PrintSequencesList(alignedTwo)
+                fmt.Println("alignment score is", score)
+                distanceMatrix[i][j] = score
+                distanceMatrix[j][i] = score
+                seqMatrix[i][j] = alignedTwo
             // distanceMatrix.UpdateDistMatrix(inputSeqs[i].info, inputSeqs[j].info, score)
             // innerMap := make(map[string]int)
             // fmt.Println("score passed into update function is", score)
             // innerMap[inputSeqs[j].info] = score
             // distanceMatrix[inputSeqs[i].info] = innerMap //why is the value 0?
             // fmt.Println("distance matrix looks like: ")
-            fmt.Println(distanceMatrix)
+                fmt.Println("distance matrix is:")
+                for n := 0; n < len(distanceMatrix); n++ {
+                    fmt.Println(distanceMatrix[n])
+                }
             // PrintSubMatrix(distanceMatrix)
             // distanceMatrix[inputSeqs[i].info][inputSeqs[j].info] = score
             // seqMatrix[inputSeqs[i].info][inputSeqs[j].info] = alignedTwo
+            // }
+            }  
         }
     }
     return distanceMatrix, seqMatrix
@@ -102,7 +119,8 @@ func NeedlemanWunsch(rowSeqs, colSeqs Sequences, subMatrix Matrix) (Sequences, i
 func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Sequences{
     n1 := len(rowSeqs[0].sequence) //rowSeq might be diff length from colSeq but all seqs in each are the same length
     n2 := len(colSeqs[0].sequence)//no +1 because gap symbol already added to 1st position- sequence[0] is always "-" which you can use
-    fmt.Println("length is", len(rowSeqs[0].sequence))
+    fmt.Println("length of rowSeq is", len(rowSeqs[0].sequence))
+    fmt.Println("length of colSeq is", len(colSeqs[0].sequence))
     //make a slice of sequences (strings) for rowSeq, colSeq, equal to how many there are, set them each to ""
     newRowSeqs := make([]Sequence, len(rowSeqs))
     newColSeqs := make([]Sequence, len(colSeqs)) //make new Sequences objects
@@ -141,6 +159,7 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
             if j > 0 {
                 for n := 0; n < len(newColSeq); n++ {
                     newColSeq[n] = string(colSeqs[n].sequence[j]) + newColSeq[n]
+                    // fmt.Println(string(colSeqs[n].sequence[j]))
                 }
                 // newSeq2 =  string(seq2[j-1]) + newSeq2
             }         
@@ -171,7 +190,7 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
             // newSeq2 =  "-"+ newSeq2
             i-- 
         }
-        // fmt.Println(newRowSeqs[0], newColSeqs[0])
+        fmt.Println(newRowSeq[0], newColSeq[0])
         direction = traceBackMatrix[i][j]    
     }
 
@@ -317,15 +336,15 @@ func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd
     // var move Move
     // move.value = max
     // checking which move gives me the max score
+
     if max == diagScore{
         direction = "DIAG"
-    } 
-    if max == leftScore{
+    } else if max == leftScore{
         direction = "LEFT"
-    }
-    if max == upScore{
+    } else if max == upScore{
         direction =  "UP"
     }
+     
     return max, direction
 }
 
