@@ -232,17 +232,11 @@ func WriteFASTAOutput(filename string, sequences Sequences) error {
 			return fmt.Errorf("failed to write ID: %w", err)
 		}
 
-		// Wrap and write the sequence content (80 characters per line)
-		for i := 0; i < len(seq.sequence); i += 80 {
-			end := i + 80
-			if end > len(seq.sequence) {
-				end = len(seq.sequence)
-			}
-			_, err := file.WriteString(seq.sequence[i:end] + "\n")
-			if err != nil {
-				return fmt.Errorf("failed to write sequence content: %w", err)
-			}
+		_, err = file.WriteString(seq.sequence + "\n")
+		if err != nil {
+			return fmt.Errorf("failed to write sequence content: %w", err)
 		}
+		
 	}
 	return nil
 }

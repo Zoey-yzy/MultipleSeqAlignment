@@ -13,13 +13,17 @@ if (!require("shiny")) {
 }
 
 
-# Check if shiny is installed; if not, install it
-if (!require("DT")) {
-  install.packages("DT")
-}
+
 # Check if ggplot2 is installed; if not, install it
 if (!require("ggplot2")) {
   install.packages("ggplot2")
+}
+
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+}
+if (!require("ape")) {
+  install.packages("ape")
 }
 
 
@@ -27,6 +31,7 @@ if (!require("ggplot2")) {
 
 library(shiny)
 library(ggplot2)
+
 
 # First, set your working directory to source file location.
 
@@ -39,7 +44,6 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       fileInput("Sequences", "Upload Sequences", accept = c(".txt", ".fasta", ".fa", "csv")),
-      textInput("fileURL", "Or enter the URL of the sequencesa file:"),
       sliderInput("gapPenalty", "gapPenalty", 
                   min = -5, max = -1, value = -1),
       sliderInput("match", "match", 
@@ -48,7 +52,8 @@ ui <- fluidPage(
                   min = -5, max = -1, value = -1),
       actionButton("runGoCode", "Run Sequence Alignment")
     ),
-    mainPanel(imageOutput("image"))
+    mainPanel(plotOutput("outputPlot"))  # Display the plot in the app
+    
     
   )
 )
@@ -63,11 +68,7 @@ server <- function(input, output) {
     
     if (!is.null(input$genomeFile)) {
       filePath <- input$genomeFile$datapath
-    } else if (input$fileURL != "") {
-      tempFile <- tempfile(fileext = ".fasta")
-      download.file(input$fileURL, tempFile, mode = "wb")
-      filePath <- tempFile
-    }
+    } 
     
     req(filePath)  # Ensure a file path or URL is provided
     
@@ -77,23 +78,25 @@ server <- function(input, output) {
     
     # Run the compiled Go program
     print("Running go engine....")
-    run_result <- system(paste("./MultipleSeqAlignment", filePath), intern = TRUE)
+    seqType <- "Protein"
+    distanceMetric <- "alignedhomology"
+    scoring<- "BLOSUM62.csv"
+    gapPenalty <- input$gapPenalty
+    inputFile < -"covidspikeprotein"
+    run_result <- system(paste("./MultipleSeqAlignment", seqType, distanceMetric,scoring,gapPenalty,inputFile), intern = TRUE)
     print(run_result)  # For debugging, to see runtime output
     
     # Read the skew array from the CSV file
     print("Running msa.csv file")
-    sequences_data <- read.csv("output/msa.csv", stringsAsFactors = FALSE)
+    tree <- ape::read.tree("output/tree.newick") 
+    treePlot <- plotTree(tree)
+    output$outputPlot <- renderPlot({
+    tree})
     
     # Extract the sequences as a vector
-    sequences <- sequences_data$Sequence
-    print("Visualizing MSA")
-    output$image <- renderImage( 
-      { 
-        list(src = "output/msa.png", height = "100%") 
-      }, 
-      deleteFile = FALSE 
-    ) 
-  
+    print("Visualizing Tree")
+    
+   
   })
 }
 

@@ -18,7 +18,7 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 			tree[p].neighbors = append(tree[p].neighbors, clusters[0])
 			tree[p].neighbors = append(tree[p].neighbors, clusters[1])
 			tree[p].sequence, _ = NeedlemanWunsch(clusters[0].sequence, clusters[1].sequence, subMatrix)
-			tree[p].label =  clusters[0].label + clusters[1].label
+			tree[p].label =  clusters[0].label +"|||" + clusters[1].label
 
 			
 
@@ -31,7 +31,7 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 			tree[p].neighbors[0].distance = CalcDist(mtx, row, col)
 			tree[p].neighbors[1].distance = CalcDist(mtx, col, row)
 			tree[p].sequence, _ = NeedlemanWunsch(clusters[row].sequence, clusters[col].sequence, subMatrix)
-			tree[p].label =  clusters[row].label + clusters[col].label
+			tree[p].label =  clusters[row].label +"|||" +clusters[col].label
 			
 			// first, add a row and column corresponding to new cluster
 			mtx = AddRowCol(row, col, mtx)
