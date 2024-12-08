@@ -82,7 +82,7 @@ func main() { //commandline taken from RShiny
     // fmt.Println("score was", alignmentScorr)
 
     distMatrix := CreateDistanceMatrix(distMethod, inputSeqs, subMatrix)
-    fmt.Println("distance matrix looks like: ")
+    // fmt.Println("distance matrix looks like: ")
     fmt.Println("distance matrix is:")
     for n := 0; n < len(distMatrix); n++ {
         fmt.Println(distMatrix[n])
