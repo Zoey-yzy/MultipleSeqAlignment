@@ -6,6 +6,7 @@ type Node struct{
 	neighbors []*Node  
 	sequence Sequences //is a slice of Sequence objects
 	distance float64 
+    label string
 }
 
 

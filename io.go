@@ -31,7 +31,7 @@ func buildNewickString(node *Node, visited map[*Node]bool) string {
 	}
 
 	// Extract sequence string from Sequences type as a slice representation.
-	nodeLabel := extractSequenceSliceLabel(node.sequence)
+	nodeLabel := node.label
 
 	// Build Newick string for this node.
 	if len(parts) > 0 {
@@ -206,6 +206,37 @@ func readFASTAFile(filePath string) (Sequences, error) {
     }
 
     return fileSequences, nil
+}
+// saveAsFasta saves a list of sequences to a FASTA file.
+func WriteFASTAOutput(filename string, sequences Sequences) error {
+	// Create the file
+	file, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer file.Close()
+
+	// Write each sequence in FASTA format
+	for _, seq := range sequences {
+		// Write the identifier line
+		_, err := file.WriteString(fmt.Sprintf(">%s\n", seq.info))
+		if err != nil {
+			return fmt.Errorf("failed to write ID: %w", err)
+		}
+
+		// Wrap and write the sequence content (80 characters per line)
+		for i := 0; i < len(seq.sequence); i += 80 {
+			end := i + 80
+			if end > len(seq.sequence) {
+				end = len(seq.sequence)
+			}
+			_, err := file.WriteString(seq.sequence[i:end] + "\n")
+			if err != nil {
+				return fmt.Errorf("failed to write sequence content: %w", err)
+			}
+		}
+	}
+	return nil
 }
 
 func PrintSequencesList(sequences Sequences) {
