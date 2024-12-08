@@ -1,3 +1,13 @@
+# Check if tidyverse is installed; if not, install it
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+}
+
+# Check if ape is installed; if not, install it
+if (!require("ape")) {
+  install.packages("ape")
+}
+
 library(tidyverse)
 library(ape)
 
