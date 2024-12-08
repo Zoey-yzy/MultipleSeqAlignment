@@ -1,6 +1,6 @@
 >seq1
 AARD
-CCCC
+VARK
 >seq2
 RAAH
 PEE
