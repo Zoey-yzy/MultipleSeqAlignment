@@ -9,7 +9,7 @@ project for Programming for Scientist 2024 fall @ cmu
 An example command would be:
 ```
 ```
-./MultipleSeqAlignment DNA alignedhomology standardDNA.csv -1 Sequences/DNA/slidesexample/example.txt
+./MultipleSeqAlignment DNA alignedhomology standardDNA.csv -1 slidesexample
 ```
 ``` 
 <ins>seqType</ins>: the type of sequence being aligned  
