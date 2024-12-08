@@ -17,23 +17,21 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 			tree[p].distance = mtx[0][1] / 2.0
 			tree[p].neighbors = append(tree[p].neighbors, clusters[0])
 			tree[p].neighbors = append(tree[p].neighbors, clusters[1])
-			//tree[p].sequence = seqMatrix[0][1]
 			tree[p].sequence, _ = NeedlemanWunsch(clusters[0].sequence, clusters[1].sequence, subMatrix)
-		}else{
+			tree[p].label =  clusters[0].label + clusters[0].label
+
+			
+
+			
+
+			}else{
 			row, col := FindMinDist(mtx) //the indices of this should be the same corresponding to the respective Sequence in Sequences object
 			tree[p].neighbors = append(tree[p].neighbors, clusters[row])
 			tree[p].neighbors = append(tree[p].neighbors, clusters[col])
 			tree[p].neighbors[0].distance = CalcDist(mtx, row, col)
 			tree[p].neighbors[1].distance = CalcDist(mtx, col, row)
-			//if the new neighbors/children have a sequences of length 1, then we already got the alignment when we built the distance matrix, so look it up
-			// if len(clusters[row].sequence) == 1 && len(clusters[col].sequence) == 1 { 
-				// tree[p].sequence = seqMatrix[row][col]
-			// } else { //you need to get the alignment
 			tree[p].sequence, _ = NeedlemanWunsch(clusters[row].sequence, clusters[col].sequence, subMatrix)
-			// }
-			// fmt.Println("at this node:", tree[p].sequence)
-
-			// tree[p].sequence = TraceBackSeq(tree[p].neighbor1, tree[p].neighbor2) // need to call function in needleman
+			tree[p].label =  clusters[row].label + clusters[col].label
 			
 			// first, add a row and column corresponding to new cluster
 			mtx = AddRowCol(row, col, mtx)
@@ -191,7 +189,8 @@ func InitializeTree(sequences Sequences)Tree{
 		node.neighbors = make([]*Node,0)
 		if i < num {
 			node.sequence = sequences[i:i+1] //needs to be a slice of Sequences of length 1 in leaves?
-		}else{
+			node.label = sequences[i:i+1][0].info // 
+			}else{
 			// node.sequence = "aligned sequence" + strconv.Itoa(i-num)
 			node.sequence = make(Sequences, 0) //this works right?
 		}

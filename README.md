@@ -3,8 +3,15 @@ project for Programming for Scientist 2024 fall @ cmu
 
 
 <ins>Input arguments are formatted as:</ins>  
+```
 ./MultipleSeqAlignment seqType distMethod filename gapScore folderName
-
+```
+An example command would be:
+```
+```
+./MultipleSeqAlignment DNA alignedhomology standardDNA.csv -1 Sequences/DNA/slidesexample/example.txt
+```
+``` 
 <ins>seqType</ins>: the type of sequence being aligned  
 either "DNA" or "Protein"- case-sensitive
 
