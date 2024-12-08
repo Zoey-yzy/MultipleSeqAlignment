@@ -92,7 +92,7 @@ func main() { //commandline taken from RShiny
     // fmt.Println(guideTree[0].sequence)
     root := guideTree[len(guideTree)-1]
 	
-	// WriteNewickToFile(guideTree, "output", "tree.newick")
+    // WriteNewickToFile(guideTree, "output", "tree.newick")
 	newick := ConvertTreeToNewick(guideTree, root)
 	fmt.Println("newick:",newick)
 	fileName := "output/tree.newick"
@@ -102,6 +102,17 @@ func main() { //commandline taken from RShiny
 	} else {
 		fmt.Println("Newick exported to", fileName)
 	}
+
+	// WriteNewickToFile(guideTree, "output", "othertree.newick")
+	// newick := ConvertTreeToNewick(guideTree, root)
+	// fmt.Println("newick:",newick)
+	// fileName := "output/tree.newick"
+	// err = ExportNewickToFile(newick, fileName)
+	// if err != nil{
+	// 	fmt.Println("Error exporting Newick:", err)
+	// } else {
+	// 	fmt.Println("Newick exported to", fileName)
+	// }
 	
     PrintSequencesList(guideTree[len(guideTree)-1].sequence)
 	WriteFASTAOutput("output/msa.fasta", root.sequence)
