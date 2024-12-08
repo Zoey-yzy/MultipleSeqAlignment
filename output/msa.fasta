@@ -625,43 +625,43 @@ F-S---Q-TTSN-FLPE-SAAYYV-GNLKYT-TFML-S--FN-E-N-G--TI--T--N--A-I--------------
 >
 ------------------------------R-G-L----PV-G-F-SVL-K-P-ILKL-P-ISI-NI-T-SF-KVVMSM-
 F-S---R-TTSN-FLPE-VAAYFV-GNLKYS-TFML-N--FN-E-N-G--TI--T--D--A-I--------------
->SARS-CoV-2 YP_009724390.1 surface glycoprotein [Severe acute respiratory syndrome coronavirus 2]
+>SARS-CoV-2
 ------------------------------M-F-V----FL-V-L-LPL-V-S-SQCV-N-LTT-RT-Q-LP--PAYT--
 N-S---F-TRGV-YYPD-KVFRSS-VLHSTQ-DLFL-P--FF-S-N-V--TW--F--H--A-I-----HV-------
->SARSr-CoV_RaTG13 QHR63300.2 spike glycoprotein [Bat coronavirus RaTG13]
+>SARSr-CoV_RaTG13
 ------------------------------M-F-V----FL-V-L-LPL-V-S-SQCV-N-LTT-RT-Q-LP--PAYT--
 N-S---S-TRGV-YYPD-KVFRSS-VLHLTQ-DLFL-P--FF-S-N-V--TW--F--H--A-I-----HV-------
->SARSr-CoV_ZXC21 AVP78042.1 spike protein [Bat SARS-like coronavirus]
+>SARSr-CoV_ZXC21
 ------------------------------M-L-F----FL-F-LQFAL-V-N-SQC--D-LTG-RT-P-LN--PNYT--
 N-S---S-QRGV-YYPD-TIYRSD-TLVLSQ-GYFL-P--FY-S-N-V--SW--Y--Y--S-L-----TT-------
->SARSr-CoV_ZC45 AVP78031.1 spike protein [Bat SARS-like coronavirus]
+>SARSr-CoV_ZC45
 ------------------------------M-L-F----FL-F-LQFAL-V-N-SQCV-N-LTG-RT-P-LN--PNYT--
 N-S---S-QRGV-YYPD-TIYRSD-TLVLSQ-GYFL-P--FY-S-N-V--SW--Y--Y--S-L------T-------
->SARSr-CoV_Rp3 sp|Q3I5J5.1|SPIKE_BCRP3 RecName: Full=Spike glycoprotein; Short=S glycoprotein; AltName: Full=E2; AltName: Full=Peplomer protein; Contains: RecName: Full=Spike protein S1; Contains: RecName: Full=Spike protein S2; Contains: RecName: Full=Spike protein S2'; Flags: Precursor
+>SARSr-CoV_Rp3
 ------------------------------M-K-I----LI-L-A-FLA-S-L-AKAQ-EGCGI-IS-R-KP-QPKMAQV
 S-S---S-RRGV-YYND-DIFRSN-VLHLTQ-DYFL-P--FD-S-N-L--TQ--Y--F-------------------
->SARSr-CoV_Rs672 ACU31032.1 spike protein [SARS coronavirus Rs_672/2006]
+>SARSr-CoV_Rs672
 ------------------------------M-K-V----LI-V-L-LCL-G-L-VTAQ-DGCGH-IS-T-KP-QPLMDKF
 S-S---S-RRGV-YYND-DIFRSD-VLHLTQ-DYFL-P--FD-T-N-L--TR--Y--L-------------------
->WIV1 AGZ48828.1 spike protein [Bat SARS-like coronavirus WIV1]
+>WIV1
 ------------------------------MKL-L----VL-V-F-ATL-V-S-SYTI-EKCLD-FD-D-RT-PPANTQF
 L-S---S-HRGV-YYPD-DIFRSN-VLHLVQ-DHFL-P--FD-S-N-V--TR--F----------------------
->WIV16 ALK02457.1 spike protein [SARS-like coronavirus WIV16]
+>WIV16
 ------------------------------M-F-I----FL-F-F-LTL-T-S-GSDL-ESCTT-FD-D-VQ-APNYPQH
 S-S---S-RRGV-YYPD-EIFRSD-TLYLTQ-DLFL-P--FY-S-N-V--TG--F--H-------------------
->SARS-CoV_GZ02 AAS00003.1 spike glycoprotein [SARS coronavirus GZ02]
+>SARS-CoV_GZ02
 ------------------------------M-F-I----FL-L-F-LTL-T-S-GSDL-DRCTT-FD-D-VQ-APNYTQH
 T-S---S-MRGV-YYPD-EIFRSD-TLYLTQ-DLFL-P--FY-S-N-V--TG--F--H-------------------
->SARS-CoV_A031 AAV97988.1 spike glycoprotein [SARS coronavirus A031]
+>SARS-CoV_A031
 ------------------------------M-F-I----FL-L-F-LTL-T-S-GSDL-DRCTT-FD-D-VQ-APNYTQH
 T-S---S-MRGV-YYPD-EIFRSD-TLYLTQ-DLFL-P--FY-S-N-V--TG--F--H-------------------
->SARS-CoV_A022 AAV91631.1 spike glycoprotein [SARS coronavirus A022]
+>SARS-CoV_A022
 ------------------------------M-F-I----FL-L-F-LTL-T-S-GSDL-DRCTT-FD-D-VQ-APNYTQH
 T-S---S-MRGV-YYPD-EIFRSD-TLYLTQ-DLFL-P--FY-S-N-V--TG--F--H-------------------
->SARS-CoV_Urbani AAP13441.1 S protein [SARS coronavirus Urbani]
+>SARS-CoV_Urbani
 ------------------------------M-F-I----FL-L-F-LTL-T-S-GSDL-DRCTT-FD-D-VQ-APNYTQH
 T-S---S-MRGV-YYPD-EIFRSD-TLYLTQ-DLFL-P--FY-S-N-V--TG--F--H-------------------
->SARS-CoV_CUHK-W1 AAP13567.1 putative E2 glycoprotein precursor [SARS coronavirus CUHK-W1]
+>SARS-CoV_CUHK-W1
 ------------------------------M-F-I----FL-L-F-LTL-T-S-GSDL-DRCTT-FD-D-VQ-APNYTQH
 T-S---S-MRGV-YYPD-EIFRSD-TLYLTQ-DLFL-P--FY-S-N-V--TG--F--H-------------------
 >
