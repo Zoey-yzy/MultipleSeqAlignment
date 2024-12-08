@@ -60,7 +60,7 @@ func main() { //commandline taken from RShiny
     fmt.Println("printing final sequences, number of sequences is", len(inputSeqs))
     for _, seq := range inputSeqs {
         //fmt.Printf("Info: %s, Sequence: %s\n", seq.info, seq.sequence)
-        fmt.Println(seq.info, seq.sequence)
+        fmt.Println("the sequence is:", seq.info, seq.sequence)
     }
 
     //START WITH THESE TWO GUYS TO DO TEST CASES

@@ -1,0 +1,10 @@
+>seq1
+AARD
+VARK
+>seq2
+RAAH
+PEE
+>seq3
+ITCHY
+SKIN
+AW
