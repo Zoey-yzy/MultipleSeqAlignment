@@ -18,7 +18,7 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 			tree[p].neighbors = append(tree[p].neighbors, clusters[0])
 			tree[p].neighbors = append(tree[p].neighbors, clusters[1])
 			tree[p].sequence, _ = NeedlemanWunsch(clusters[0].sequence, clusters[1].sequence, subMatrix)
-			tree[p].label =  clusters[0].label + clusters[0].label
+			tree[p].label =  clusters[0].label + clusters[1].label
 
 			
 
