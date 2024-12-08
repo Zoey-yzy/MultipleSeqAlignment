@@ -4,6 +4,8 @@ if (!require("tidyverse")) {
 if (!require("ape")) {
   install.packages("ape")
 }
+
+
 tree <- ape::read.tree("output/tree.newick") 
 plot(tree)
 edgelabels(

@@ -91,25 +91,20 @@ func main() { //commandline taken from RShiny
     guideTree := NJ(distMatrix, inputSeqs, subMatrix)
     // fmt.Println(guideTree[0].sequence)
     root := guideTree[len(guideTree)-1]
-    newick := ConvertTreeToNewick(guideTree, root)
+	
+	// WriteNewickToFile(guideTree, "output", "tree.newick")
+	newick := ConvertTreeToNewick(guideTree, root)
 	fmt.Println("newick:",newick)
 	fileName := "output/tree.newick"
-	if err := ExportNewickToFile(newick, fileName); err != nil {
+	err = ExportNewickToFile(newick, fileName)
+	if err != nil{
 		fmt.Println("Error exporting Newick:", err)
 	} else {
 		fmt.Println("Newick exported to", fileName)
 	}
+	
     PrintSequencesList(guideTree[len(guideTree)-1].sequence)
 	WriteFASTAOutput("output/msa.fasta", root.sequence)
-    // seq1 :=  "MSLTAKDKSVVKAFWGKISGKADVVGAEALGRVLTAYPQTKTYFSHWADLSPGSGPVKKHGGIIMGAIGKAVGLMDDLVGGMSALSDLHAFNLRVDPGNFKILSHNILVTLAIHFPSDFTPEVHIAVDKFLAVVSAALADKYR"[:20] //ykiss_Rainbow_trou
-    // seq2 := "MHLTADDKKHIKAIWPSVAAHGDKYGGEALHRMFMCAPKTKTYFPDFDFSEHSKHILAHGKKVSDALNEACNHLDNIAGCLSKLSDLHAYDLRVDPGNFPLLAHQILVVVAIHFPKQFDPATHKALDKFLVSVSNVLTSKYR"[:20] //Xenopus_tropicalis_Western_clawed_frog
-    // seq1 := "YRQSMNNFQGLRSFGCRFGTCTVQKLAHQIYQFTDKDKDNVAPRSKISPQGY" //adrenomedullin
-    // seq2 := "TQAQLLRVGCVLGTCQVQNLSHRLWQLMGPAGRQDSAPVDPSSPHSY" //adm2
-    // alignedSeq1,alignedSeq2,alignmentScore:= Needleman(seq1,seq2)
-    // fmt.Println("alignedSeq1:",alignedSeq1)
-    // fmt.Println("alignedSeq2:",alignedSeq2)
-    // fmt.Println("Score:",alignmentScore)
-    // distanceMap := ConstructDistanceMap([]string{seq1,seq2}) //what does this do? we only have two sequences?
-    // fmt.Println("distanceMap:",distanceMap)
+    
 }
 

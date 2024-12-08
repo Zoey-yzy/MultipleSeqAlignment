@@ -156,6 +156,7 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
     }
     //combine rowSeqs and colSeqs into one sequences object
     mergedSeqs := append(newRowSeqs, newColSeqs...)
+    
 
     return mergedSeqs
 }
