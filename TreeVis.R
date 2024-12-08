@@ -4,7 +4,7 @@ if (!require("tidyverse")) {
 if (!require("ape")) {
   install.packages("ape")
 }
-tree <- ape::read.tree("output/covidtree.newick") 
+tree <- ape::read.tree("output/tree.newick") 
 plot(tree)
 edgelabels(
   round(tree$edge.length, 2), # Round edge lengths for cleaner display

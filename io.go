@@ -183,6 +183,12 @@ func readFASTAFile(filePath string) (Sequences, error) {
         line := scanner.Text()
         // fmt.Println("new line is", line)
         if strings.HasPrefix(line, ">") {
+            // fmt.Println("found a new sequence")
+            if currentSequence.info != "" {
+                // fmt.Println("let's store prev Sequence")
+                fileSequences = append(fileSequences, currentSequence)
+                currentSequence = Sequence{}
+            }
             // if currentSequence.info != "" && currentSequence.sequence != "" {
             //     // fileSequences = append(fileSequences, currentSequence)
             //     // currentSequence = sequence{}
@@ -191,13 +197,15 @@ func readFASTAFile(filePath string) (Sequences, error) {
             currentSequence.info = line[1:]
             // fmt.Println("current sequence info:", currentSequence.info, "current sequence itself:", currentSequence.sequence)
         } else {
-            currentSequence.sequence = line
+            // fmt.Println("amino acid sequence")
+            currentSequence.sequence += line
             // fmt.Println("current sequence info:", currentSequence.info, "current sequence itself:", currentSequence.sequence)
-            fileSequences = append(fileSequences, currentSequence)
-            currentSequence = Sequence{}
+            
         }
         // fmt.Println(currentSequence.info, currentSequence.sequence)
     }
+    fileSequences = append(fileSequences, currentSequence)
+    currentSequence = Sequence{}
     
     fmt.Println("folder has", len(fileSequences))
 
