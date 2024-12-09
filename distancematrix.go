@@ -4,6 +4,7 @@ package main
 
 import (
 	"fmt"
+	// "math"
 )
 
 //"naivehomology"- naive
@@ -28,7 +29,12 @@ func CreateDistanceMatrix(distMethod string, inputSeqs Sequences, subMatrix Matr
 	for n := 0; n < len(diffMatrix); n++ {
 		fmt.Println(diffMatrix[n])
 	}
-	return diffMatrix  
+	normDistMatrix := MinMaxNormalize(diffMatrix)
+	fmt.Println("normeddistMatrix is")
+	for n := 0; n < len(normDistMatrix); n++ {
+		fmt.Println(normDistMatrix[n])
+	}
+	return normDistMatrix
 }
 
 //the function to do Needleman repeatedly- every sequence against every other sequence, to create a distance matrix
@@ -176,13 +182,54 @@ func IdentifyShorterSequence(sequence1, sequence2 string) int {
 	}
 }
 
+func MinMaxNormalize(distanceMatrix [][]float64) [][]float64 {
+	normMatrix := make([][]float64, len(distanceMatrix))
+	min := FindMinVal(distanceMatrix)
+	max := FindMaxVal(distanceMatrix)
+	for r := range distanceMatrix {
+		normMatrix[r] = make([]float64, len(distanceMatrix[r]))
+		for c := range distanceMatrix[r] {
+			if r == c {
+				normMatrix[r][c] = 0 //the distance between two identical sequences should be 0
+			} else {
+				normMatrix[r][c] = (distanceMatrix[r][c] - min)/(max-min)
+			}
+		}
+	}
+	return normMatrix
+}
+
+func FindMinVal(distanceMatrix [][]float64) float64 {
+	min := distanceMatrix[0][0]
+	for r := range distanceMatrix {
+		for c := range distanceMatrix[r] {
+			if distanceMatrix[r][c] < min {
+				min = distanceMatrix[r][c]//the distance between two identical sequences should be 0
+			}
+		}
+	}
+	return min
+} 
+
+func FindMaxVal(distanceMatrix [][]float64) float64 {
+	max := distanceMatrix[0][0]
+	for r := range distanceMatrix {
+		for c := range distanceMatrix[r] {
+			if distanceMatrix[r][c] > max {
+				max = distanceMatrix[r][c]//the distance between two identical sequences should be 0
+			}
+		}
+	}
+	return max
+} 
+
 func MatrixToFloats(distanceMatrix [][]int) [][]float64{
     //we can clean this later- but take distanceMatrix and convert to [][]float64
     diffMatrix := make([][]float64, len(distanceMatrix))
     for i := 0; i < len(distanceMatrix); i++ {
         diffMatrix[i] = make([]float64, len(distanceMatrix))
         for j := 0; j < len(distanceMatrix); j++ {
-            diffMatrix[i][j] = float64(-1*distanceMatrix[i][j])
+            diffMatrix[i][j] = float64(distanceMatrix[i][j])
         }
     }
     return diffMatrix
