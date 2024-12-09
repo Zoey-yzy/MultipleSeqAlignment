@@ -6,6 +6,8 @@ import (
 	"os"
 )
 
+//delete bc didn't work
+
 func WriteNewickToFile(t Tree, fileDest string, fileName string) {
 
 	newickString := ToNewick(t)
