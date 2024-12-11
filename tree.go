@@ -20,10 +20,6 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 			tree[p].sequence, _ = NeedlemanWunsch(clusters[0].sequence, clusters[1].sequence, subMatrix)
 			tree[p].label =  clusters[0].label +"|||" + clusters[1].label
 
-			
-
-			
-
 			}else{
 			row, col := FindMinDist(mtx) //the indices of this should be the same corresponding to the respective Sequence in Sequences object
 			tree[p].neighbors = append(tree[p].neighbors, clusters[row])

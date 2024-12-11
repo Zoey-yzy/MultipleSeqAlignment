@@ -87,7 +87,7 @@ func main() { //commandline taken from RShiny
     for n := 0; n < len(distMatrix); n++ {
         fmt.Println(distMatrix[n])
     }
-    fmt.Println("building tree")
+    fmt.Println("building guide tree")
     guideTree := NJ(distMatrix, inputSeqs, subMatrix)
     // fmt.Println(guideTree[0].sequence)
     root := guideTree[len(guideTree)-1]
@@ -95,16 +95,33 @@ func main() { //commandline taken from RShiny
 	// WriteNewickToFile(guideTree, "output", "tree.newick")
 	newick := ConvertTreeToNewick(guideTree, root)
 	fmt.Println("newick:",newick)
-	fileName := "output/tree.newick"
+	fileName := "output/covidguidetree.newick"
 	err = ExportNewickToFile(newick, fileName)
 	if err != nil{
 		fmt.Println("Error exporting Newick:", err)
 	} else {
 		fmt.Println("Newick exported to", fileName)
 	}
-	
     PrintSequencesList(guideTree[len(guideTree)-1].sequence)
-	WriteFASTAOutput("output/msa.fasta", root.sequence)
+	WriteFASTAOutput("output/msa.fasta", root.sequence) //output aligned sequences
+
+    fileName = "output/covidtree.newick"
+    alignedDistMatrix := CreateNaiveHomologyMatrix(root.sequence)
+    fmt.Println("building phylogenetic tree")
+    finalTree := NJ(alignedDistMatrix, root.sequence, subMatrix)
+    // fmt.Println(guideTree[0].sequence)
+    finalroot := finalTree[len(finalTree)-1]
+	
+	// WriteNewickToFile(guideTree, "output", "tree.newick")
+	newick = ConvertTreeToNewick(finalTree, finalroot)
+	fmt.Println("newick:",newick)
+	// fileName := "output/covidfinaltree.newick"
+	err = ExportNewickToFile(newick, fileName)
+	if err != nil{
+		fmt.Println("Error exporting Newick:", err)
+	} else {
+		fmt.Println("Newick exported to", fileName)
+	}
     
 }
 

@@ -6,7 +6,7 @@ if (!require("ape")) {
 }
 
 
-tree <- ape::read.tree("output/tree.newick") 
+tree <- ape::read.tree("output/covidtree.newick") 
 plot(tree)
 edgelabels(
   round(tree$edge.length, 2), # Round edge lengths for cleaner display
