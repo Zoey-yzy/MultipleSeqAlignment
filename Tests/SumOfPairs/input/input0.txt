@@ -1,0 +1,6 @@
+1 1
+DNA standardDNA.csv -2
+1
+GTACA
+1
+GTA

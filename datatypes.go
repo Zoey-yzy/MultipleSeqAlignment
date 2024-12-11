@@ -23,7 +23,7 @@ type Sequence struct{
 }
 
 //input format for MSA- of unaligned sequences, as well as outputs of aligned sequences
-//how do we use this for initial sequence to sequence NW?
+//how do we use this for initial sequence to sequence NW? - slices of length 1
 type Sequences []Sequence
 
 type SequenceMatrix map[string]map[string]Sequences

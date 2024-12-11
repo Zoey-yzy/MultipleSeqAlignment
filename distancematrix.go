@@ -182,6 +182,9 @@ func IdentifyShorterSequence(sequence1, sequence2 string) int {
 	}
 }
 
+//MinMaxNormalize normalizes values of a distance matrix such that the min val is 0 and max val is 1, and all values distributed between
+//input: a distanceMatrix 2D slice of floats
+//returns: another 2D slice of floats, but min-max normalized
 func MinMaxNormalize(distanceMatrix [][]float64) [][]float64 {
 	normMatrix := make([][]float64, len(distanceMatrix))
 	min := FindMinVal(distanceMatrix)
@@ -199,6 +202,9 @@ func MinMaxNormalize(distanceMatrix [][]float64) [][]float64 {
 	return normMatrix
 }
 
+//FindMinVal finds the minimum val in a 2D slice of floats
+//input: a distanceMatrix 2D slice of floats
+//returns the minimum value in that 2D slice
 func FindMinVal(distanceMatrix [][]float64) float64 {
 	min := distanceMatrix[0][0]
 	for r := range distanceMatrix {
@@ -211,6 +217,9 @@ func FindMinVal(distanceMatrix [][]float64) float64 {
 	return min
 } 
 
+//FindMaxVal finds the maximum val in a 2D slice of floats
+//input: a distanceMatrix 2D slice of floats
+//returns the maximum value in that 2D slice
 func FindMaxVal(distanceMatrix [][]float64) float64 {
 	max := distanceMatrix[0][0]
 	for r := range distanceMatrix {
@@ -223,6 +232,9 @@ func FindMaxVal(distanceMatrix [][]float64) float64 {
 	return max
 } 
 
+//MatrixToFloats converts all values in a 2D slice of ints into float64
+//input: a distanceMatrix 2D slice of ints
+//returns that distanceMatrix, all values cast to floats
 func MatrixToFloats(distanceMatrix [][]int) [][]float64{
     //we can clean this later- but take distanceMatrix and convert to [][]float64
     diffMatrix := make([][]float64, len(distanceMatrix))

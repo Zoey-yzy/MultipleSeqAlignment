@@ -1,0 +1,8 @@
+1 1
+DNA standardDNA.csv -2
+2
+G-ACA
+GCATA
+2
+GTA
+GCA

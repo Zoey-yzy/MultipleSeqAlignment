@@ -1,0 +1,5 @@
+LEFT 3 2
+1
+GTACA
+1
+GTA

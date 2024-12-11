@@ -1,0 +1,5 @@
+Protein BLOSUM62.csv -8
+1
+-GTACA
+1
+-GTA

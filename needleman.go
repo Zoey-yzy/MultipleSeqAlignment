@@ -69,8 +69,8 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
     //make a slice of sequences (strings) for rowSeq, colSeq, equal to how many there are, set them each to ""
     newRowSeqs := make([]Sequence, len(rowSeqs))
     newColSeqs := make([]Sequence, len(colSeqs)) //make new Sequences objects
-    newRowSeq := make([]string, len(rowSeqs))
-    newColSeq := make([]string, len(colSeqs)) //will have default value of ""
+    // newRowSeq := make([]string, len(rowSeqs))
+    // newColSeq := make([]string, len(colSeqs)) //will have default value of ""
 
     //fill each one with the appropriate sequence info
     for i := 0; i < len(newRowSeqs); i++ {
@@ -91,77 +91,179 @@ func GetAlignments(rowSeqs, colSeqs Sequences, traceBackMatrix [][]string) Seque
     //i reflects position of row labels; symbols going down side of matrix
     //j reflects position of column labels; symbols going across top of matrix
     
-    for i > 0 || j > 0 {
-        //fmt.Println("Direction:",direction,"i:","j", i,j,"seq1:",newSeq1,"seq2:",newSeq2)
-        if direction == "DIAG"{ //add the character at that position to everybody, decrement i and j by 1
-            if i > 0 {
-                for m := 0; m < len(newRowSeq); m++ {
-                    newRowSeq[m] = string(rowSeqs[m].sequence[i]) + newRowSeq[m]
-                    // fmt.Println(string(rowSeqs[m].sequence[i]))
-                }
-                // newSeq1 =  string(seq1[i-1]) + newSeq1
+    for i > 0 || j > 0 { //i refers to the ith character in rowSeqs; j to the jth character in rowSeqs
+        newRowChars := make([]string, len(rowSeqs)) //new slice of characters, one for every sequence in rowSeqs
+        newColChars := make([]string, len(colSeqs)) //new slice of characters, one for every sequence in rowSeqs
+        newRowChars, newColChars, i, j = GetNextChars(rowSeqs, colSeqs, direction, i, j)
+        if i >= 0 {
+            for m := 0; m < len(newRowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+                newRowSeqs[m].sequence = newRowChars[m] + newRowSeqs[m].sequence //add this character
+                // fmt.Println(string(rowSeqs[m].sequence[i]))
             }
-            if j > 0 {
-                for n := 0; n < len(newColSeq); n++ {
-                    newColSeq[n] = string(colSeqs[n].sequence[j]) + newColSeq[n]
-                    // fmt.Println(string(colSeqs[n].sequence[j]))
-                }
-                // newSeq2 =  string(seq2[j-1]) + newSeq2
-            }         
-            i--
-            j--
-        } else if direction == "LEFT"{ //add character at that position to column sequence, "-" to row; decrement the column count by 1
-            for m := 0; m < len(newRowSeq); m++ {
-                newRowSeq[m] = "-" + newRowSeq[m]
-            }
-            // newSeq1 =  "-" + newSeq1
-            if j > 0 {
-                for n := 0; n < len(newColSeq); n++ {
-                    newColSeq[n] = string(colSeqs[n].sequence[j]) + newColSeq[n]
-                }
-                // newSeq2 =  string(seq2[j-1]) + newSeq2
-            }
-            j--
-        } else if direction == "UP"{ //add character at that position to row sequence, "-" to column; decrement the row count by 1
-            if i > 0 {
-                for m := 0; m < len(newRowSeq); m++ {
-                    newRowSeq[m] = string(rowSeqs[m].sequence[i]) + newRowSeq[m]
-                }
-                // newSeq1 =  string(seq1[i-1]) + newSeq1
-            }
-            for n := 0; n < len(newColSeq); n++ {
-                newColSeq[n] = "-" + newColSeq[n]
-            }
-            // newSeq2 =  "-"+ newSeq2
-            i-- 
+            // newSeq1 =  string(seq1[i-1]) + newSeq1
         }
+        if j >= 0 {
+            for n := 0; n < len(newColSeqs); n++ { //n counts the number of Sequence objects in Sequences
+                newColSeqs[n].sequence = newColChars[n] + newColSeqs[n].sequence //add this character to every Sequence in rowSeqs
+                // fmt.Println(string(colSeqs[n].sequence[j]))
+            }
+            // newSeq2 =  string(seq2[j-1]) + newSeq2
+        }
+        // i, j = 
+        direction = traceBackMatrix[i][j]
+        
+        
         // fmt.Println("RowSeqs")
-        // for i := 0; i < len(newRowSeq); i++ {
-        //     fmt.Println(newRowSeq[i])
+        // for i := 0; i < len(newRowSeqs); i++ {
+        //     fmt.Println(newRowSeqs[i].sequence)
         // }
         // fmt.Println("ColSeqs")
-        // for j := 0; j < len(newColSeq); j++ {
-        //     fmt.Println(newColSeq[j])
+        // for j := 0; j < len(newColSeqs); j++ {
+        //     fmt.Println(newColSeqs[j].sequence)
         // }
         // fmt.Println(newRowSeq[0], newColSeq[0])
-        direction = traceBackMatrix[i][j]    
-    }
+          
 
-    //now, replace the old sequences in rowSeqs and colSeqs with the sequences in new ones
-    for i := 0; i < len(rowSeqs); i++ {
-        newRowSeqs[i].sequence = newRowSeq[i]
-    }
-    for j := 0; j < len(colSeqs); j++ {
-        newColSeqs[j].sequence = newColSeq[j]
+        // direction := traceBackMatrix[i][j] //start at max row and col of matrix
+        // i, j = processDirection(direction, &newRowSeqs, &newColSeqs, rowSeqs, colSeqs, i, j)
+        //fmt.Println("Direction:",direction,"i:","j", i,j,"seq1:",newSeq1,"seq2:",newSeq2)
+        // if direction == "DIAG"{ //add the character at that position to everybody, decrement i and j by 1
+        //     if i > 0 {
+        //         for m := 0; m < len(newRowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+        //             newRowSeqs[m].sequence = string(rowSeqs[m].sequence[i]) + newRowSeqs[m].sequence //add this character
+        //             // fmt.Println(string(rowSeqs[m].sequence[i]))
+        //         }
+        //         // newSeq1 =  string(seq1[i-1]) + newSeq1
+        //     }
+        //     if j > 0 {
+        //         for n := 0; n < len(newColSeqs); n++ { //n counts the number of Sequence objects in Sequences
+        //             newColSeqs[n].sequence = string(colSeqs[n].sequence[j]) + newColSeqs[n].sequence //add this character to every Sequence in rowSeqs
+        //             // fmt.Println(string(colSeqs[n].sequence[j]))
+        //         }
+        //         // newSeq2 =  string(seq2[j-1]) + newSeq2
+        //     }         
+        //     i--
+        //     j-- //decrement both i and j
+        // } else if direction == "LEFT"{ //add character at that position to column sequence, "-" to row; decrement the column count by 1
+        //     if i > 0 {
+        //         for m := 0; m < len(newRowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+        //             newRowSeqs[m].sequence = "-" + newRowSeqs[m].sequence //add a gap symbol to every Sequence in rowSeqs
+        //         }
+        //     }
+        //     // newSeq1 =  "-" + newSeq1
+        //     if j > 0 {
+        //         for n := 0; n < len(newColSeqs); n++ { //n counts the number of Sequence objects in Sequences
+        //             newColSeqs[n].sequence = string(colSeqs[n].sequence[j]) + newColSeqs[n].sequence //add this character to every Sequence in colSeqs
+        //         }
+        //         // newSeq2 =  string(seq2[j-1]) + newSeq2
+        //     }
+        //     j--
+        // } else if direction == "UP"{ //add character at that position to row sequence, "-" to column; decrement the row count by 1
+        //     if i > 0 { 
+        //         for m := 0; m < len(newRowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+        //             newRowSeqs[m].sequence = string(rowSeqs[m].sequence[i]) + newRowSeqs[m].sequence //add this character to every Sequence in rowSeqs
+        //         }
+        //         // newSeq1 =  string(seq1[i-1]) + newSeq1
+        //     }
+        //     if j > 0 {
+        //         for n := 0; n < len(newColSeqs); n++ { //n counts the number of Sequence objects in Sequences
+        //             newColSeqs[n].sequence = "-" + newColSeqs[n].sequence //add a gap symbol to every Sequence in colSeqs
+        //         }
+        //     }
+        //     // newSeq2 =  "-"+ newSeq2
+        //     i-- 
+        // }
+        // fmt.Println("RowSeqs")
+        // for i := 0; i < len(newRowSeqs); i++ {
+        //     fmt.Println(newRowSeqs[i].sequence)
+        // }
+        // fmt.Println("ColSeqs")
+        // for j := 0; j < len(newColSeqs); j++ {
+        //     fmt.Println(newColSeqs[j].sequence)
+        // }
+        // fmt.Println(newRowSeq[0], newColSeq[0])
+        direction = traceBackMatrix[i][j] //extra line?   
     }
     //combine rowSeqs and colSeqs into one sequences object
     mergedSeqs := append(newRowSeqs, newColSeqs...)
-    
-
     return mergedSeqs
 }
 
-//this function is like a forward pass of the needleman algorthm whereby we compute the score for a given subsequence ending at i,j
+//GetNextChars determines the next character/nucleotide/amino acid that 
+func GetNextChars(rowSeqs, colSeqs Sequences, direction string, i, j int) ([]string, []string, int, int) {
+    newRowChars := make([]string, len(rowSeqs)) //new slice of characters, one for every sequence in rowSeqs
+    newColChars := make([]string, len(colSeqs)) //new slice of characters, one for every sequence in rowSeqs
+    if direction == "DIAG"{ //add the character at that position to everybody, decrement i and j by 1
+        for m := 0; m < len(rowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+            newRowChars[m] = string(rowSeqs[m].sequence[i])
+        }
+        for n := 0; n < len(colSeqs); n++ { //n counts the number of Sequence objects in Sequences
+            newColChars[n] = string(colSeqs[n].sequence[j])
+        }
+        i--
+        j-- //decrement both i and j
+    } else if direction == "LEFT"{ //add character at that position to column sequence, "-" to row; decrement the column count by 1
+        for m := 0; m < len(rowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+            newRowChars[m] = "-"
+        }
+        for n := 0; n < len(colSeqs); n++ { //n counts the number of Sequence objects in Sequences
+            newColChars[n] = string(colSeqs[n].sequence[j])
+        }
+        j--
+    } else if direction == "UP"{ //add character at that position to row sequence, "-" to column; decrement the row count by 1
+        for m := 0; m < len(rowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+            newRowChars[m] = string(rowSeqs[m].sequence[i])
+        }
+        for n := 0; n < len(colSeqs); n++ { //n counts the number of Sequence objects in Sequences
+            newColChars[n] = "-"
+        }
+        i-- 
+    }
+    // fmt.Println("newColChars in function", newColChars)
+    // fmt.Println("newColChars in function", len(newColChars))
+    return newRowChars, newColChars, i, j
+}
+
+// func processDirection(direction string, newRowSeqs, newColSeqs *Sequences, rowSeqs, colSeqs Sequences, i, j int) (int, int) {
+//     // //fmt.Println("Direction:",direction,"i:","j", i,j,"seq1:",newSeq1,"seq2:",newSeq2)
+//     if direction == "DIAG" { //add the character at that position to everybody, decrement i and j by 1
+//         if i > 0 {
+//             for m := 0; m < len(*newRowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+//                 (*newRowSeqs)[m].sequence = string(rowSeqs[m].sequence[i]) + (*newRowSeqs)[m].sequence //add this character to all Sequence objects in rowSeqs
+//             }
+//         }
+//         if j > 0 {
+//             for n := 0; n < len(*newColSeqs); n++ { //n counts the number of Sequence objects in Sequences
+//                 (*newColSeqs)[n].sequence = string(colSeqs[n].sequence[j]) + (*newColSeqs)[n].sequence //add this character to every Sequence in rowSeqs
+//             }
+//         }
+//         i--
+//         j-- //decrement both i and j
+//     } else if direction == "LEFT" { //add character at that position to column sequence, "-" to row; decrement the column count by 1
+//         for m := 0; m < len(*newRowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+//             (*newRowSeqs)[m].sequence = "-" + (*newRowSeqs)[m].sequence //add a gap symbol to every Sequence in rowSeqs
+//         }
+//         if j > 0 {
+//             for n := 0; n < len(*newColSeqs); n++ { //n counts the number of Sequence objects in Sequences
+//                 (*newColSeqs)[n].sequence = string(colSeqs[n].sequence[j]) + (*newColSeqs)[n].sequence //add this character to every Sequence in colSeqs
+//             }
+//         }
+//         j--
+//     } else if direction == "UP" { //add character at that position to row sequence, "-" to column; decrement the row count by 1
+//         if i > 0 {
+//             for m := 0; m < len(*newRowSeqs); m++ { //m counts the number of Sequence objects in Sequences
+//                 (*newRowSeqs)[m].sequence = string(rowSeqs[m].sequence[i]) + (*newRowSeqs)[m].sequence //add this character to every Sequence in rowSeqs
+//             }
+//         }
+//         for n := 0; n < len(*newColSeqs); n++ { //n counts the number of Sequence objects in Sequences
+//             (*newColSeqs)[n].sequence = "-" + (*newColSeqs)[n].sequence //add a gap symbol to every Sequence in colSeqs
+//         }
+//         i--
+//     }
+//     return i, j
+// }
+
+//this function is like a forward pass of the needleman algorithm whereby we compute the score for a given subsequence ending at i,j
 //Input: the input Sequences (single or multiple aligned) rowSeqs and colSeqs, the scoring dictionary subMatrix
 //Output: two matrices, the first matrix represents a matrix of alignment scores whereas the second matrix consists of the direction of travel in the forward pass
 // of needleman algorithm e.g which direcion we took from a given cell i,j
@@ -256,7 +358,7 @@ func InitializeNWTracebackMatrix2D(rowSeqs, colSeqs Sequences) [][]string {
     return matrix
 }
 
-//this is a helper function that essentially helps us find the maximum value in ta 3 element list
+//this is a helper function that essentially helps us find the maximum value in a 3 element list
 //Input: a list of three ints
 //Output: an int which is the maximum in the input list
 func ComputeNWMax(list [3]int) int{
@@ -269,6 +371,7 @@ func ComputeNWMax(list [3]int) int{
     }
     return max
 }
+
 //this is a helper function to compute the maximum value for three possible cells: UP,DIAGONAL,LEFT
 //Input: a 2D matrix ints containing scores, rowSeqs and colSeqs the Sequences being aligned, the current indices rowInd, colInd to look at and a Matrix submatrix specifying the scoring mechanism
 //Output: int value for the maximum score from the three specified directions and the string value for the direction
@@ -277,6 +380,11 @@ func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd
     for a given cell i,j what is the move that will get me the maximum score given cells to my left (i-1,j)
     up (i,j-1) and diagonal (i-1,j-1)
     */
+    // fmt.Println("score matrix here is")
+    // for n := 0; n < len(matrix); n++ {
+    //     fmt.Println(matrix[n])
+    // }
+    // fmt.Println(rowInd, colInd)
     var direction string
     // fmt.Println("current rowSeqs letter is", string(rowSeqs[0].sequence[rowInd]), rowInd, "current colSeqs letter is", string(colSeqs[0].sequence[colInd]), colInd)
     upScore := matrix[rowInd-1][colInd] + SumOfPairs(rowSeqs, colSeqs, rowInd, 0, subMatrix) //0 is always gap
@@ -306,7 +414,8 @@ func ComputeNWMaxMove(matrix [][]int, rowSeqs, colSeqs Sequences, rowInd, colInd
     // if rowInd == 4 && colInd == 3 {
     //     fmt.Println("goes", direction)
     // }
-     
+    // fmt.Println(upScore, diagScore, leftScore)
+    // fmt.Println(max, direction)
     return max, direction
 }
 

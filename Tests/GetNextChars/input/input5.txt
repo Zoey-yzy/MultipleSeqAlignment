@@ -1,0 +1,7 @@
+LEFT 3 1
+2
+GTACA
+GCATA
+2
+GTA
+GCA
