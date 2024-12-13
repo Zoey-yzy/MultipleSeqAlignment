@@ -207,7 +207,7 @@ func readFASTAFile(filePath string) (Sequences, error) {
     fileSequences = append(fileSequences, currentSequence)
     currentSequence = Sequence{}
     
-    fmt.Println("folder has", len(fileSequences))
+    fmt.Println("INFO:File has", len(fileSequences))
 
     if err := scanner.Err(); err != nil {
         return nil, err

@@ -2,3 +2,31 @@
 YGGFM
 >sp|P01210|230-234|Leu-Enkephalin
 YGGFL
+>Endomorphin-1
+YPWF
+>Endomorphin-2
+YPFF
+>beta-casomorphin 1-3
+YPF
+>beta-casomorphin 1-4
+YPFP
+>beta-casomorphin 1-5
+YPFPG
+>gluten exorphin A5
+GYYPT
+>gluten exorphin B4
+YGGW
+>gluten exorphin B5
+YGGWL
+>gluten exorphin C
+YPISL
+>rubiscolin-5
+YPLDL
+>rubiscolin-6
+YPLDLF
+>soymorphin-5
+YPFVV
+>soymorphin-6
+YPFVVN
+>soymorphin-7
+YPFVVNA

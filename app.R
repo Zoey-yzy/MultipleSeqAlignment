@@ -1,104 +1,210 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    https://shiny.posit.co/
-#
-
-# Check if shiny is installed; if not, install it
-if (!require("shiny")) {
-  install.packages("shiny")
+# Install necessary packages if not already installed
+if (!require("shiny")) install.packages("shiny")
+if (!require("ape")) install.packages("ape")
+if (!requireNamespace("BiocManager", quietly=TRUE)){
+  install.packages("BiocManager")
+  
 }
-
-
-
-# Check if ggplot2 is installed; if not, install it
-if (!require("ggplot2")) {
-  install.packages("ggplot2")
+if (!require("DECIPHER")) {
+  BiocManager::install("DECIPHER")
+  
 }
-
-if (!require("tidyverse")) {
-  install.packages("tidyverse")
+if (!require("here")){
+  install.packages("here")
+  
 }
-if (!require("ape")) {
-  install.packages("ape")
-}
-
-
-
 
 library(shiny)
-library(ggplot2)
+library(ape)
+library(DECIPHER)
+library(here)
 
-
-# First, set your working directory to source file location.
-
-# Define UI
+# Define the Shiny UI
 ui <- fluidPage(
-  titlePanel("Multiple Sequence Alignment Go"),
-  
-  
+  titlePanel("MSA Visualization"),
   
   sidebarLayout(
     sidebarPanel(
-      fileInput("Sequences", "Upload Sequences", accept = c(".txt", ".fasta", ".fa", "csv")),
+      fileInput("sequenceFile", "Upload Sequence File",
+                accept = c(".fasta",".txt")),
+      selectInput("seqType", "Sequence Type",
+                  choices = c("DNA" = "DNA",
+                              "Protein" = "Protein")),
+      selectInput("distanceMetric", "Distance Metric",
+                  choices = c("Needleman" = "alignmentscore",
+                              "SequenceHomology" = "naivehomology",
+                              "AlignedSequenceHomology"="alignedhomology")),
       sliderInput("gapPenalty", "gapPenalty", 
-                  min = -5, max = -1, value = -1),
-      sliderInput("match", "match", 
-                  min = 1, max = 5, value = 1),
-      sliderInput("mismatch", "mismatch", 
-                  min = -5, max = -1, value = -1),
-      actionButton("runGoCode", "Run Sequence Alignment")
+                  min = -10, max = -1, value = -1),
+      selectInput("scoring", "ScoringMatrix",
+                  choices = c(
+                              "BLAST" = "DNABLAST.csv",
+                              "StandardDNA" = "standardDNA.csv",
+                              "BLOSUM62" = "BLOSUM62.csv",
+                              "PAM250" = "PAM250.csv")),
+      
+      selectInput("treeType", "Tree Layout",
+                  choices = c("Phylogram" = "phylogram",
+                              "Cladogram" = "cladogram",
+                              "Unrooted" = "unrooted",
+                              "Radial" = "radial")),
+      checkboxInput("showTipLabels", "Show Tip Labels", value = TRUE),
+      checkboxInput("showNodeLabels", "Show Node Labels", value = FALSE),
+      sliderInput("labelSize", "Label Size", min = 0.5, max = 2, value = 1, step = 0.1),
+      actionButton("runGoMSA", "Run MSA")
     ),
-    mainPanel(plotOutput("outputPlot"))  # Display the plot in the app
     
-    
+    mainPanel(
+      textOutput("file_info") , # Displays file info or error message
+      plotOutput("guideTreePlot", height = "600px"),
+      plotOutput("phyloTreePlot", height = "600px"),
+      uiOutput("alignedSeqPlot", height = "600px"),
+      
+      
+    )
   )
 )
 
-
-
-server <- function(input, output) {
-  
-  observeEvent(input$runGoCode, {
-    # Determine the file path or URL to use
-    filePath <- NULL
-    
-    if (!is.null(input$genomeFile)) {
-      filePath <- input$genomeFile$datapath
+# Define the Shiny server
+server <- function(input, output, session) {
+  cwd <- here()
+  print(paste("cwd",cwd))
+  observe({
+    if (input$seqType == "DNA") {
+     updateSelectInput(session, "scoring", 
+                        choices = c("BLAST" = "DNABLAST.csv","StandardDNA" = "standardDNA.csv"))
     } 
+    else if (input$seqType == "Protein") {
+      updateSelectInput(session, "scoring", 
+                       choices = c("BLOSUM62" = "BLOSUM62.csv","PAM250" = "PAM250.csv"))
+    }
+  })
+  
+  
+  observeEvent(input$runGoMSA, {
     
-    req(filePath)  # Ensure a file path or URL is provided
+    # Determine the file path or URL to use
+    filePath <- input$sequenceFile$datapath
+    if (is.null(input$sequenceFile)){
+      # Display file information or error message
+      output$file_info <- renderText({
+        input$runGoMSA  # React to the Submit button
+        
+        # Validate input: show error message if no file is uploaded
+        validate(
+          need(!is.null(input$sequenceFile), "Error: Please upload a file before submitting.")
+        )
+        
+        # If input is valid, display the file name
+        paste("File uploaded:", input$sequenceFile$name)
+      })
+      print(paste("No input file provided...exiting event:",cwd))
+      return("")
+      
+    }
+    print(paste("Running go MSA:",cwd))
+    #req(filePath)  # Ensure a file path or URL is provided
     
-    # Compile the Go program
-    compile_result <- system("go build", intern = TRUE)
-    print(compile_result)  # For debugging, to see compile output
+    alignedSeqs <- NULL
+    msaOutputPath <- paste( cwd, "/output/msa.fasta",sep="")
+    msaPlotOutputPath <- paste(cwd , "/www/msa.html",sep="")
+    guideTreeOutputPath <- paste(cwd, "/output/guidetree.newick",sep="")
+    phyloTreeOutputPath <- paste(cwd,"/output/phylotree.newick",sep="")
+    print(paste("phyloTreeOutputPath:",phyloTreeOutputPath))
+    withProgress(message = "Running MSA in go....", value = 0, {
+      
+      goCommand1 <- "go build"
+      
+      goCommand2 <- "./MultipleSeqAlignment Protein alignmentscore BLOSUM62.csv -8 covidspikeprotein"
+      goCommand3 = paste("./MultipleSeqAlignment",input$seqType,input$distanceMetric,input$scoring,input$gapPenalty,filePath)
+      print(goCommand3)
+      incProgress(0.25, detail = paste("Preparing go commands"))
+      print(goCommand3)
+      incProgress(0.25, detail = paste("Preparing to run go build"))
+      run_result1 <- system(goCommand1, intern = TRUE)
+      incProgress(0.25, detail = paste("Preparing to run go msa"))
+      run_result2 <- system(goCommand3, intern = TRUE)
+      incProgress(0.25, detail = paste("Ran go msa successfully"))
+      print(run_result1)  # For debugging, to see runtime output
+      print(run_result2)  # For debugging, to see runtime output
+      # Reactive expression to load the tree from file
+      
+      
+    })
+    alignedSeqs <- reactive({
+      req(msaOutputPath)  # Ensure file is uploaded
+      seqType <- "Protein"
+      
+      if (seqType == "Protein"){
+        sequences <- readAAStringSet(msaOutputPath,format="fasta")
+      }else{
+        sequences <- readDNAStringSet(msaOutputPath,format="fasta")
+        
+      }
+      sequences
+    })
+    treeData <- reactive({
+      req(guideTreeOutputPath)  # Ensure file is uploaded
+      read.tree(guideTreeOutputPath)
+    })
+    # Render the tree plot
+    output$guideTreePlot <- renderPlot({
+      req(treeData())  # Ensure tree data is available
+      
+      tree <- treeData()
+      
+      # Assign node labels if missing
+      if (is.null(tree$node.label)) {
+        tree$node.label <- paste("Node", 1:tree$Nnode)
+      }
+      
+      # Plot the tree with the selected layout and options
+      plot.phylo(tree, 
+                 type = input$treeType, 
+                 show.tip.label = input$showTipLabels, 
+                 show.node.label = input$showNodeLabels, 
+                 cex = input$labelSize, 
+                 edge.width = 2)
+    })
     
-    # Run the compiled Go program
-    print("Running go engine....")
-    seqType <- "Protein"
-    distanceMetric <- "alignedhomology"
-    scoring<- "BLOSUM62.csv"
-    gapPenalty <- input$gapPenalty
-    inputFile < -"covidspikeprotein"
-    run_result <- system(paste("./MultipleSeqAlignment", seqType, distanceMetric,scoring,gapPenalty,inputFile), intern = TRUE)
-    print(run_result)  # For debugging, to see runtime output
+    output$alignedSeqPlot <- renderUI({
+      req(alignedSeqs())
+      
+      # Save alignment plot as an HTML file
+      BrowseSeqs(alignedSeqs(), htmlFile = msaPlotOutputPath, openURL = FALSE)
+      
+      # Display the HTML file in the Shiny app
+      tags$iframe(src = "msa.html", width = "100%", height = "600px", frameborder = 0)
+    })
     
-    # Read the skew array from the CSV file
-    print("Running msa.csv file")
-    tree <- ape::read.tree("output/tree.newick") 
-    treePlot <- plotTree(tree)
-    output$outputPlot <- renderPlot({
-    tree})
     
-    # Extract the sequences as a vector
-    print("Visualizing Tree")
+    # Reactive expression to load the tree from file
+    phyloTreeData <- reactive({
+      req(phyloTreeOutputPath)  # Ensure file is uploaded
+      read.tree(phyloTreeOutputPath)
+    })
     
-   
+    # Render the tree plot
+    output$phyloTreePlot <- renderPlot({
+      req(phyloTreeData())  # Ensure tree data is available
+      
+      tree <- phyloTreeData()
+      
+      # Assign node labels if missing
+      if (is.null(tree$node.label)) {
+        tree$node.label <- paste("Node", 1:tree$Nnode)
+      }
+      
+      # Plot the tree with the selected layout and options
+      plot.phylo(tree, 
+                 type = input$treeType, 
+                 show.tip.label = input$showTipLabels, 
+                 show.node.label = input$showNodeLabels, 
+                 cex = input$labelSize, 
+                 edge.width = 2)
+    })
   })
 }
 
-# Run the application 
+# Run the Shiny app
 shinyApp(ui = ui, server = server)

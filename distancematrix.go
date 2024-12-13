@@ -10,7 +10,8 @@ import (
 //"naivehomology"- naive
 //"alignedhomology" - aligned homology
 //"alignmentscore" - needleman
-
+//Input: distMethod one of three string above, inputSeqs (list of Sequence), subMatrix (scoring scheme)
+//Output: a min,max normalized (aesthetic reasons) distance matrix
 func CreateDistanceMatrix(distMethod string, inputSeqs Sequences, subMatrix Matrix) [][]float64 {
 	distanceMatrix := make([][]int, len(inputSeqs)) //hold int scores- results of pairwise alignments
     // seqMatrix := make([][]Sequences, len(inputSeqs)) //get rid of this or comment out
@@ -23,17 +24,10 @@ func CreateDistanceMatrix(distMethod string, inputSeqs Sequences, subMatrix Matr
     } else if distMethod == "naivehomology" {
 		diffMatrix = CreateNaiveHomologyMatrix(inputSeqs) //fix data type
 	} else { //if none of the above
-		panic("invalid distance matrix creation type")
+		panic("ERROR:invalid distance matrix creation type")
 	}
-	fmt.Println("diffMatrix is")
-	for n := 0; n < len(diffMatrix); n++ {
-		fmt.Println(diffMatrix[n])
-	}
+	fmt.Println("INFO:Normalizing matrices from 0 to 1")
 	normDistMatrix := MinMaxNormalize(diffMatrix)
-	fmt.Println("normeddistMatrix is")
-	for n := 0; n < len(normDistMatrix); n++ {
-		fmt.Println(normDistMatrix[n])
-	}
 	return normDistMatrix
 }
 
@@ -44,7 +38,6 @@ func NWDistMatrix(inputSeqs Sequences, subMatrix Matrix) [][]int{
     //code for multiple NWs on multiple sequences - this should be modularized
     // var distanceMatrix Matrix 
     // distanceMatrix := make(Matrix) 
-    fmt.Println("starting to needleman everybody", inputSeqs)
     distanceMatrix := make([][]int, len(inputSeqs)) //hold int scores- results of pairwise alignments
     for i := 0; i < len(distanceMatrix); i++ {
         distanceMatrix[i] = make([]int, len(inputSeqs))
@@ -68,21 +61,7 @@ func NWDistMatrix(inputSeqs Sequences, subMatrix Matrix) [][]int{
                 // fmt.Println("alignment score is", score)
                 distanceMatrix[i][j] = score
                 distanceMatrix[j][i] = score
-                // seqMatrix[i][j] = alignedTwo
-            // distanceMatrix.UpdateDistMatrix(inputSeqs[i].info, inputSeqs[j].info, score)
-            // innerMap := make(map[string]int)
-            // fmt.Println("score passed into update function is", score)
-            // innerMap[inputSeqs[j].info] = score
-            // distanceMatrix[inputSeqs[i].info] = innerMap //why is the value 0?
-            // fmt.Println("distance matrix looks like: ")
-                // fmt.Println("distance matrix is:")
-                // for n := 0; n < len(distanceMatrix); n++ {
-                //     fmt.Println(distanceMatrix[n])
-                // }
-            // PrintSubMatrix(distanceMatrix)
-            // distanceMatrix[inputSeqs[i].info][inputSeqs[j].info] = score
-            // seqMatrix[inputSeqs[i].info][inputSeqs[j].info] = alignedTwo
-            // }
+                
             }  
         }
     }

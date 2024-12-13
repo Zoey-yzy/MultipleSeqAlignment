@@ -6,7 +6,7 @@ import (
     "strconv"
     "strings"
     "testing"
-	"fmt"
+	//"fmt"
 	"path/filepath"
 )
 
@@ -320,7 +320,7 @@ func ReadComputeNWMaxMoveInput(filename string) (Sequences, Sequences, int, int,
                 return nil, nil, 0, 0, nil, nil, err
             }
         }
-		fmt.Println(intRow)
+		//fmt.Println(intRow)
         matrix = append(matrix, intRow)
     }
 
