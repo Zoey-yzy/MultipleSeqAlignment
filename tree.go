@@ -6,6 +6,10 @@ import(
 )
 
 // high level function of neighbor joining method
+//Input: The distance matrix mtx of type [][]float64, our input sequences (stored as Sequences type) 
+//and our scoringMatrix named subMatrix of type Matrix
+//Output: a list of nodes represented by the Tree type denoting the constructed guide tree
+//as well the MSA. We basically aligned sequences as the tree got build for computational efficiecny
 func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be the original set of input Sequences
 	tree := InitializeTree(sequences)
 	num := len(sequences)
@@ -44,7 +48,8 @@ func NJ(mtx [][]float64, sequences Sequences, subMatrix Matrix)Tree{ //should be
 }
 
 // Find the smallest distance after adjust
-//returns the row and col indices in the matrix of the minimum value
+//Input: takes in mtx of type [][]float 64 storing our distance values between nodes
+//Output: returns the row and col indices (both int) in the matrix of the minimum value
 func FindMinDist(mtx [][]float64)(int, int){
 	numRows := len(mtx)
 	if numRows < 3{ //if there are two rows
@@ -73,6 +78,8 @@ func FindMinDist(mtx [][]float64)(int, int){
 	}
 }
 // Calculate the divergence and the adjusted distance
+//Input: mtx of type [][]float64 for which we need to calculate divergence
+//Output: a list of float64 denoting the divergence for each row in the matrix
 func CalcDivergence(mtx [][]float64)[]float64{
 	divergence := make([]float64, len(mtx))
 	numClusters := len(mtx)
@@ -88,6 +95,8 @@ func CalcDivergence(mtx [][]float64)[]float64{
 }
 
 // Adjust the original matrix to gain the adjusted distances
+//Input: a mtx of type [][]float 64 which needs to be adjusted based on divergence
+//Output: the adjusted mtx that is upadted based on divergence 
 func AdjustMatrix(mtx [][]float64)[][]float64{
 	numRows := len(mtx)
 	AdjMatrix := make([][]float64, numRows)
@@ -109,6 +118,8 @@ func AdjustMatrix(mtx [][]float64)[][]float64{
 }
 
 // Calculate the distance between the two children and their parent
+//Input: a 2D mtx of type float64 and the particular idx1,idx2 (both int,essentially row,col)
+//Output: Distance value between node idx1 and node idx2 as a float64
 func CalcDist(mtx [][]float64, idx1, idx2 int)float64{
 	divergence := CalcDivergence(mtx)
 	div1 := divergence[idx1]
@@ -117,7 +128,8 @@ func CalcDist(mtx [][]float64, idx1, idx2 int)float64{
 }
 
 // Update the distance matrix by adding a parent row and column
-
+//Input: a 2D mtx of type float64 and the particular row,col (both) int to add to mtx
+//Output: a new mtx of type [][]float64 with row,col added
 func AddRowCol(row, col int, mtx [][]float64) [][]float64 {
 	numRows := len(mtx)
 	pRow := make([]float64, numRows+1)
@@ -147,7 +159,8 @@ func AddRowCol(row, col int, mtx [][]float64) [][]float64 {
 }
 
 // Delete the original two nodes replaced by a newly parent node
-
+//Input: a 2D mtx of type float64 and the particular row,col (both) int to remove from mtx
+//Output: a new mtx of type [][]float64 with row,col removed
 func DeleteRowCol(mtx [][]float64, row, col int) [][]float64 {
 
 	// col > row, so first delete the col one. Delete two rows first
@@ -166,7 +179,8 @@ func DeleteRowCol(mtx [][]float64, row, col int) [][]float64 {
 }
 
 // Update the clusters that track our disconnected nodes of the tree
-
+//Input: list of Node* denoting our clusters and the particular row,col (both int) to remove from clusters
+//Output: an updated list of Node* after row,col removed
 func DeleteClusters(clusters []*Node, row, col int)[]*Node{
 	clusters = append(clusters[:col], clusters[col+1:]...)
 	clusters = append(clusters[:row], clusters[row+1:]...)
@@ -175,6 +189,8 @@ func DeleteClusters(clusters []*Node, row, col int)[]*Node{
 
 // Initialize a tree with leaves representing sequences
 // we leave space for parent nodes that would be added later
+//Input: a list of sequences of type Sequences
+//Output: a tree with leaves initialized as our sequences
 func InitializeTree(sequences Sequences)Tree{
 	var tree Tree 
 	num := len(sequences)
@@ -196,6 +212,8 @@ func InitializeTree(sequences Sequences)Tree{
 }
 
 // Initialize clusters of the sequences, which are the leaves of the tree
+//Input: None, this is just a helper function
+//Output: a new list of nodes denoting our clusters
 func (tree Tree) InitializeClusters() []*Node {
 	// the tree has 2n-1 total nodes, given the number of leaves is n
 	// want the first n nodes of the tree which are leaves
@@ -210,7 +228,9 @@ func (tree Tree) InitializeClusters() []*Node {
 
 	return clusters
 }
-
+//This function tells whether two matrices are the same
+//Input: matrix mtx1 and matrix mtx2 both [][]float64
+//Output: a boolean denoting whether matrices are same or not
 func IstheSame(mtx1,mtx2 [][]float64)bool{
 	if len(mtx1) != len(mtx2) || len(mtx1[0]) != len(mtx2[0]){
 		panic("unmatched length of the two matrices")

@@ -87,7 +87,7 @@ server <- function(input, output, session) {
     if (is.null(input$sequenceFile)){
       showModal(modalDialog(
         title = "Error",
-        "Please enter some text before submitting.",
+        "Please upload a file before submitting.",
         easyClose = TRUE,
         footer = NULL
       ))
