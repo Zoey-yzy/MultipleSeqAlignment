@@ -43,16 +43,6 @@ func main() { //commandline taken from RShiny
         fmt.Println("ERROR:Error:", err)
         return
     }
-    //PrintSubMatrix(subMatrix)
-	// fmt.Println("A, A", matrix["A"]["A"], "A, T", matrix["A"]["T"])
-
-    
-    // folderName := "peptidehormones"
-    // inputSeqs, err := ReadFASTAInput(seqType, folderName) //inputSeqs is a Sequences object
-    // if err != nil {
-    //     fmt.Println("Error:", err)
-    //     return
-    // }
     //3: Read sequences file supplied as .fasta or .txt in FASTA format
     fmt.Println("INFO:Reading sequences")
     inputSeqs, err := readFASTAFile(filePath)
