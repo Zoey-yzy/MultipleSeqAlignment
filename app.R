@@ -55,7 +55,6 @@ ui <- fluidPage(
     ),
     
     mainPanel(
-      textOutput("file_info") , # Displays file info or error message
       plotOutput("guideTreePlot", height = "600px"),
       plotOutput("phyloTreePlot", height = "600px"),
       uiOutput("alignedSeqPlot", height = "600px"),
@@ -86,25 +85,18 @@ server <- function(input, output, session) {
     # Determine the file path or URL to use
     filePath <- input$sequenceFile$datapath
     if (is.null(input$sequenceFile)){
-      # Display file information or error message
-      output$file_info <- renderText({
-        input$runGoMSA  # React to the Submit button
-        
-        # Validate input: show error message if no file is uploaded
-        validate(
-          need(!is.null(input$sequenceFile), "Error: Please upload a file before submitting.")
-        )
-        
-        # If input is valid, display the file name
-        paste("File uploaded:", input$sequenceFile$name)
-      })
+      showModal(modalDialog(
+        title = "Error",
+        "Please enter some text before submitting.",
+        easyClose = TRUE,
+        footer = NULL
+      ))
       print(paste("No input file provided...exiting event:",cwd))
       return("")
       
     }
     print(paste("Running go MSA:",cwd))
-    #req(filePath)  # Ensure a file path or URL is provided
-    
+
     alignedSeqs <- NULL
     msaOutputPath <- paste( cwd, "/output/msa.fasta",sep="")
     msaPlotOutputPath <- paste(cwd , "/www/msa.html",sep="")
