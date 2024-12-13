@@ -55,8 +55,11 @@ ui <- fluidPage(
     ),
     
     mainPanel(
+      p("Guide Tree"),
       plotOutput("guideTreePlot", height = "600px"),
+      p("Phylogenetic Tree"),
       plotOutput("phyloTreePlot", height = "600px"),
+      p("MSA Visualization"),
       uiOutput("alignedSeqPlot", height = "600px"),
       
       
