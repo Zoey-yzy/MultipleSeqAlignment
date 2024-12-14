@@ -14,7 +14,6 @@ import (
 //Output: a min,max normalized (aesthetic reasons) distance matrix
 func CreateDistanceMatrix(distMethod string, inputSeqs Sequences, subMatrix Matrix) [][]float64 {
 	distanceMatrix := make([][]int, len(inputSeqs)) //hold int scores- results of pairwise alignments
-    // seqMatrix := make([][]Sequences, len(inputSeqs)) //get rid of this or comment out
     diffMatrix := make([][]float64, len(inputSeqs))
     if distMethod == "alignmentscore" {
         distanceMatrix = NWDistMatrix(inputSeqs, subMatrix) //maybe output a [][]float64 from here and not cast
@@ -42,25 +41,18 @@ func NWDistMatrix(inputSeqs Sequences, subMatrix Matrix) [][]int{
     for i := 0; i < len(distanceMatrix); i++ {
         distanceMatrix[i] = make([]int, len(inputSeqs))
     }
-    // seqMatrix := make([][]Sequences, len(inputSeqs)) //hold Sequences objects of length 2- no need to redo alignments when filling guide tree nodes, just fill from here
-    // for i := 0; i < len(seqMatrix); i++ {
-    //     seqMatrix[i] = make([]Sequences, len(inputSeqs))
-    // }
-    // var seqMatrix SequenceMatrix 
+    
     for i := 0; i < len(inputSeqs); i++ {
-        // distanceMatrix[i] = make([]int, len(inputSeqs))
-        // seqMatrix[i] = make([]Sequences, len(inputSeqs))
+       
         for j := i; j < len(inputSeqs); j++ {
             if j == i { //this is janky
                 distanceMatrix[j][i] = 0
             } else {
-                // fmt.Println("printing", inputSeqs[i:i+1], inputSeqs[j:j+1])
-                // if i >= j {
+                
                 _, score := NeedlemanWunsch(inputSeqs[i:i+1], inputSeqs[j:j+1], subMatrix) //returns a Sequences object- the aligned two sequences, int the alignment score
-                // PrintSequencesList(alignedTwo)
-                // fmt.Println("alignment score is", score)
-                distanceMatrix[i][j] = score
-                distanceMatrix[j][i] = score
+                //needleman is similartiy, we negative it to make it dissimilariy
+				distanceMatrix[i][j] = -score
+                distanceMatrix[j][i] = -score
                 
             }  
         }
