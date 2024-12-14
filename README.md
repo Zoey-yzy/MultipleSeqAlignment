@@ -1,6 +1,6 @@
 # MultipleSeqAlignment
 project for Programming for Scientist 2024 fall @ cmu
-
+Demo link: https://drive.google.com/drive/folders/1xEtGnSn3T2a_1ChPEXnvrB3qYVItbGt2?usp=sharing
 
 <ins>Input arguments are formatted as:</ins>  
 ```
