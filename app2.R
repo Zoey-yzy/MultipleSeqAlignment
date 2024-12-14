@@ -109,8 +109,6 @@ server <- function(input, output, session) {
     print(paste("Running go MSA:",cwd))
     
     alignedSeqs <- NULL
-    subMatrixPath <- paste(cwd,"/ScoringMatrices/",input$seqType,"/","BLOSUM63.csv",sep="")
-    print(subMatrixPath)
     msaOutputPath <- paste( cwd, "/output/msa.fasta",sep="")
     msaPlotOutputPath <- paste(cwd , "/www/msa.html",sep="")
     msaPlotOutputPath2 <- paste(cwd , "/www/msa2.html",sep="")
