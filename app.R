@@ -9,6 +9,9 @@ if (!require("DECIPHER")) {
   BiocManager::install("DECIPHER")
   
 }
+if (!require("msa")){
+  BiocManager::install("msa")
+}
 if (!require("here")){
   install.packages("here")
   
@@ -18,6 +21,7 @@ library(shiny)
 library(ape)
 library(DECIPHER)
 library(here)
+library(msa)
 
 # Define the Shiny UI
 ui <- fluidPage(
@@ -38,19 +42,20 @@ ui <- fluidPage(
                   min = -10, max = -1, value = -1),
       selectInput("scoring", "ScoringMatrix",
                   choices = c(
-                              "BLAST" = "DNABLAST.csv",
-                              "StandardDNA" = "standardDNA.csv",
-                              "BLOSUM62" = "BLOSUM62.csv",
-                              "PAM250" = "PAM250.csv")),
+                    "BLAST" = "DNABLAST.csv",
+                    "StandardDNA" = "standardDNA.csv",
+                    "BLOSUM62" = "BLOSUM62.csv",
+                    "PAM250" = "PAM250.csv")),
       
       selectInput("treeType", "Tree Layout",
                   choices = c("Phylogram" = "phylogram",
                               "Cladogram" = "cladogram",
                               "Unrooted" = "unrooted",
                               "Radial" = "radial")),
-      checkboxInput("showTipLabels", "Show Tip Labels", value = TRUE),
-      checkboxInput("showNodeLabels", "Show Node Labels", value = FALSE),
-      sliderInput("labelSize", "Label Size", min = 0.5, max = 2, value = 1, step = 0.1),
+      selectInput("algorithm1", "Choose Alignment Algorithm 1",
+                  choices = c("Progressive (ours)")),
+      selectInput("algorithm2", "Choose Alignment Algorithm 2",
+                  choices = c("ClustalW (msa)")),
       actionButton("runGoMSA", "Run MSA")
     ),
     
@@ -59,8 +64,10 @@ ui <- fluidPage(
       plotOutput("guideTreePlot", height = "600px"),
       p("Phylogenetic Tree"),
       plotOutput("phyloTreePlot", height = "600px"),
-      p("MSA Visualization"),
+      p("Alignment 1 Visualization"),
       uiOutput("alignedSeqPlot", height = "600px"),
+      p("Alignment 2 Visualization"),
+      uiOutput("alignedSeqPlot2", height = "600px"),
       
       
     )
@@ -69,16 +76,17 @@ ui <- fluidPage(
 
 # Define the Shiny server
 server <- function(input, output, session) {
+  alignedSeqs2 <- reactiveVal(NULL)  # Store the alignment
   cwd <- here()
   print(paste("cwd",cwd))
   observe({
     if (input$seqType == "DNA") {
-     updateSelectInput(session, "scoring", 
+      updateSelectInput(session, "scoring", 
                         choices = c("BLAST" = "DNABLAST.csv","StandardDNA" = "standardDNA.csv"))
     } 
     else if (input$seqType == "Protein") {
       updateSelectInput(session, "scoring", 
-                       choices = c("BLOSUM62" = "BLOSUM62.csv","PAM250" = "PAM250.csv"))
+                        choices = c("BLOSUM62" = "BLOSUM62.csv","PAM250" = "PAM250.csv"))
     }
   })
   
@@ -99,10 +107,11 @@ server <- function(input, output, session) {
       
     }
     print(paste("Running go MSA:",cwd))
-
+    
     alignedSeqs <- NULL
     msaOutputPath <- paste( cwd, "/output/msa.fasta",sep="")
     msaPlotOutputPath <- paste(cwd , "/www/msa.html",sep="")
+    msaPlotOutputPath2 <- paste(cwd , "/www/msa2.html",sep="")
     guideTreeOutputPath <- paste(cwd, "/output/guidetree.newick",sep="")
     phyloTreeOutputPath <- paste(cwd,"/output/phylotree.newick",sep="")
     print(paste("phyloTreeOutputPath:",phyloTreeOutputPath))
@@ -123,14 +132,49 @@ server <- function(input, output, session) {
       print(run_result1)  # For debugging, to see runtime output
       print(run_result2)  # For debugging, to see runtime output
       # Reactive expression to load the tree from file
+      # Perform alignment based on selected algorithm
+      if (input$seqType == "Protein"){
+        sequences <- readAAStringSet(filePath,format="fasta")
+      }else{
+        sequences <- readDNAStringSet(filePath,format="fasta")
+        
+      }
       
+      substitution_matrixW <- ""
+      if (input$scoring == "BLOSUM62.csv"){
+        substitution_matrixW <- "blosum"
+
+      }
+      else if (input$scoring == "PAM250.csv"){
+        substitution_matrixW <- "pam"
+
+      }
+      else{
+        substitution_matrixW <- "default"
+        
+      }
+      
+      alignment <- switch(input$algorithm2,
+                          #"ClustalOmega (msa)" = msa(sequences, "ClustalOmega",gapOpening = gapExtension=input$gapPenalty,substitutionMatrix=substitution_matrixOmega ),
+                          "ClustalW (msa)" = msa(sequences, "ClustalW",gapOpening=input$gapPenalty,gapExtension=input$gapPenalty,cluster="nj",substitutionMatrix=substitution_matrixW ),
+                          #"Muscle (msa)" = msa(sequences, "Muscle",cluster="nj",gapExtension=input$gapPenalty,)
+                          )
+      aligned_matrix <- as.character(alignment)  # Alignment matrix
+      
+      if (input$seqType == "Protein"){
+        aligned <- AAStringSet(aligned_matrix)
+      }else{
+        aligned <- DNAStringSet(aligned_matrix)
+        
+      }
+      alignedSeqs2(aligned)  # Store aligned sequences
+      #alignment_result(alignment)  # Save alignment result
       
     })
     alignedSeqs <- reactive({
       req(msaOutputPath)  # Ensure file is uploaded
-      seqType <- "Protein"
-      
-      if (seqType == "Protein"){
+
+      if (input$seqType == "Protein"){
         sequences <- readAAStringSet(msaOutputPath,format="fasta")
       }else{
         sequences <- readDNAStringSet(msaOutputPath,format="fasta")
@@ -156,9 +200,9 @@ server <- function(input, output, session) {
       # Plot the tree with the selected layout and options
       plot.phylo(tree, 
                  type = input$treeType, 
-                 show.tip.label = input$showTipLabels, 
-                 show.node.label = input$showNodeLabels, 
-                 cex = input$labelSize, 
+                 show.tip.label = TRUE, 
+                 show.node.label = FALSE, 
+                 cex = 1, 
                  edge.width = 2)
     })
     
@@ -170,6 +214,16 @@ server <- function(input, output, session) {
       
       # Display the HTML file in the Shiny app
       tags$iframe(src = "msa.html", width = "100%", height = "600px", frameborder = 0)
+    })
+    
+    output$alignedSeqPlot2 <- renderUI({
+      req(alignedSeqs2())
+      
+      # Save alignment plot as an HTML file
+      BrowseSeqs(alignedSeqs2(), htmlFile = msaPlotOutputPath2, openURL = FALSE)
+      
+      # Display the HTML file in the Shiny app
+      tags$iframe(src = "msa2.html", width = "100%", height = "600px", frameborder = 0)
     })
     
     
@@ -193,9 +247,9 @@ server <- function(input, output, session) {
       # Plot the tree with the selected layout and options
       plot.phylo(tree, 
                  type = input$treeType, 
-                 show.tip.label = input$showTipLabels, 
-                 show.node.label = input$showNodeLabels, 
-                 cex = input$labelSize, 
+                 show.tip.label = TRUE, 
+                 show.node.label = FALSE, 
+                 cex = 1, 
                  edge.width = 2)
     })
   })
