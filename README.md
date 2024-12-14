@@ -8,7 +8,7 @@ project for Programming for Scientist 2024 fall @ cmu
 ```
 An example command would be:
 ```
-./MultipleSeqAlignment Protein alignmentscore BLOSUM62.csv -8 Sequences/Protein/covidspikeprotein/spikeproteins.txt
+./MultipleSeqAlignment Protein alignmentscore BLOSUM62.csv -8 Sequences/Protein/covidspikeprotein/spikeproteins2.txt
 ``` 
 <ins>seqType</ins>: the type of sequence being aligned  
 either "DNA" or "Protein"- case-sensitive
