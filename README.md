@@ -38,7 +38,7 @@ if you're doing simple scoring- (1 for match, -1 for mismatch)- do gapScore =  -
 
 <ins>inputSequencesFilepath</ins>: string indicating the path of the file to FASTA sequence files  
 - Example1 : Sequences/DNA/slidesexample/example.txt
-- Example2 : Sequences/Protein/covidspikeprotein/spikeproteins.txt
+- Example2 : Sequences/Protein/covidspikeprotein/spikeproteins2.txt
 - if seqType = "DNA", list of files is under "Sequences/DNA"  
     mostly tests, we don't have anything here really
 
